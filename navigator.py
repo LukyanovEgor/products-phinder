@@ -1,10 +1,11 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
-def do_vibor(str):
+
+def do_vibor(stroka):
     global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = str
-    if vibor=='метка':
+    vibor = stroka
+    if vibor == 'метка':
         canvas.bind('<Motion>', motion)
     x_stena, y_stena = -1, -1
     x_put, y_put = -1, -1
@@ -75,8 +76,9 @@ def motion(event):
                 canvas.create_line(x_put, y_put, event.x - 2, event.y - 2, tags='line')
     elif vibor == 'метка':
         canvas.delete('metka')
-        canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID - RADIUS,
-                           (event.x // SIZE_GRID) * SIZE_GRID + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + RADIUS,
+        Q=SIZE_GRID//2
+        canvas.create_oval((event.x // Q) * Q - RADIUS, (event.y // Q) * Q - RADIUS,
+                           (event.x // Q) * Q + RADIUS, (event.y // Q) * Q + RADIUS,
                            fill='#FF8400', tags='metka')
 
 
@@ -98,8 +100,9 @@ def b1(event):
             x_stena, y_stena = -1, -1
     elif vibor == 'метка':
         canvas.delete('metka')
-        canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID - RADIUS,
-                           (event.x // SIZE_GRID) * SIZE_GRID + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + RADIUS,
+        Q=SIZE_GRID//2
+        canvas.create_oval((event.x // Q) * Q - RADIUS, (event.y // Q) * Q - RADIUS,
+                           (event.x // Q) * Q + RADIUS, (event.y // Q) * Q + RADIUS,
                            fill='#FF2400', tags=str(tag_object))
         tag_object += 1
     elif vibor == 'путь':
@@ -183,7 +186,6 @@ def b1(event):
                                (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
             tag_object += 1
             x_polka, y_polka = -1, -1
-
     elif vibor == 'удалить':
         # res=event.widget.find_closest(event.x, event.y) # ctrl z
         if canvas.gettags(canvas.find_closest(event.x, event.y)[0])[0] != 'setka':
