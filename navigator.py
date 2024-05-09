@@ -1,76 +1,11 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
-
-def do_strelka():
+def do_vibor(str):
     global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'стрелка'
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    canvas.delete('metka')
-    canvas.delete('polka')
-    canvas.delete('line')
-    canvas.delete('stena')
-    print(vibor)
-
-
-def do_metka():
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'метка'
-    canvas.bind('<Motion>', motion)
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    canvas.delete('metka')
-    canvas.delete('polka')
-    canvas.delete('line')
-    canvas.delete('stena')
-    print(vibor)
-
-
-def do_put():
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'путь'
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    canvas.delete('metka')
-    canvas.delete('polka')
-    canvas.delete('line')
-    canvas.delete('stena')
-    print(vibor)
-
-
-def do_delete():
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'удалить'
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    canvas.delete('metka')
-    canvas.delete('polka')
-    canvas.delete('line')
-    canvas.delete('stena')
-    print(vibor)
-
-
-def do_stena():
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'стена'
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    canvas.delete('metka')
-    canvas.delete('polka')
-    canvas.delete('line')
-    canvas.delete('stena')
-    print(vibor)
-
-
-def do_polka():
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = 'полка'
+    vibor = str
+    if vibor=='метка':
+        canvas.bind('<Motion>', motion)
     x_stena, y_stena = -1, -1
     x_put, y_put = -1, -1
     x_polka, y_polka = -1, -1
@@ -270,27 +205,27 @@ RADIUS = 5
 SIZE_GRID = 10
 
 image_strelka = ImageTk.PhotoImage(image=Image.open("стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
-button_strelka = tk.Button(root, image=image_strelka, command=do_strelka)
+button_strelka = tk.Button(root, image=image_strelka, command=lambda: do_vibor('стрелка'))
 button_strelka.place(x=10, y=10)
 
 image_metka = ImageTk.PhotoImage(image=Image.open("метка.png").resize((SIZE, SIZE), Image.LANCZOS))
-button_metka = tk.Button(root, image=image_metka, command=do_metka)
+button_metka = tk.Button(root, image=image_metka, command=lambda: do_vibor('метка'))
 button_metka.place(x=10, y=100)
 
 image_put = ImageTk.PhotoImage(image=Image.open("путь.png").resize((SIZE, SIZE), Image.LANCZOS))
-button_put = tk.Button(root, image=image_put, command=do_put)
+button_put = tk.Button(root, image=image_put, command=lambda: do_vibor('путь'))
 button_put.place(x=10, y=190)
 
 image_stena = ImageTk.PhotoImage(image=Image.open("стена.jpg").resize((SIZE, SIZE), Image.LANCZOS))
-button_stena = tk.Button(root, image=image_stena, command=do_stena)
+button_stena = tk.Button(root, image=image_stena, command=lambda: do_vibor('стена'))
 button_stena.place(x=10, y=280)
 
 image_polka = ImageTk.PhotoImage(image=Image.open("полка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
-button_polka = tk.Button(root, image=image_polka, command=do_polka)
+button_polka = tk.Button(root, image=image_polka, command=lambda: do_vibor('полка'))
 button_polka.place(x=10, y=370)
 
 image_delete = ImageTk.PhotoImage(image=Image.open("удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
-button_delete = tk.Button(root, image=image_delete, command=do_delete)
+button_delete = tk.Button(root, image=image_delete, command=lambda: do_vibor('удалить'))
 button_delete.place(x=10, y=460)
 
 width = 650
