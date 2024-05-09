@@ -3,38 +3,81 @@ from PIL import Image, ImageTk
 
 
 def do_strelka():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'стрелка'
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
 def do_metka():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'метка'
+    canvas.bind('<Motion>', motion)
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
 def do_put():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'путь'
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
 def do_delete():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'удалить'
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
 def do_stena():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'стена'
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
 def do_polka():
-    global vibor
+    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
     vibor = 'полка'
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    canvas.delete('metka')
+    canvas.delete('polka')
+    canvas.delete('line')
+    canvas.delete('stena')
     print(vibor)
 
 
@@ -55,7 +98,8 @@ def motion(event):
             t_x = max(len_x // (RADIUS * 10), 1)
             for i in range(1, t_x + 1):
                 canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS,
+                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
                                    fill='#FF8400',
                                    tags='polka')
                 canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, y_polka,
@@ -69,18 +113,22 @@ def motion(event):
                                    x_polka - 2 * RADIUS, y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
                                    fill='#FF8400', tags='polka')
                 canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
                                    fill='#FF8400', tags='polka')
 
             canvas.create_oval(x_polka, y_polka,
                                x_polka - 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF8400', tags='polka')
 
             canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400', tags='polka')
+                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400',
+                               tags='polka')
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF8400', tags='polka')
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF8400',
+                               tags='polka')
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400', tags='polka')
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400', tags='polka')
 
             # print(abs(event.x-x_polka)//(RADIUS*10))
     elif vibor == 'путь':
@@ -90,6 +138,11 @@ def motion(event):
                 canvas.create_line(x_put, y_put, event.x + 2, event.y - 2, tags='line')
             else:
                 canvas.create_line(x_put, y_put, event.x - 2, event.y - 2, tags='line')
+    elif vibor == 'метка':
+        canvas.delete('metka')
+        canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID - RADIUS,
+                           (event.x // SIZE_GRID) * SIZE_GRID + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + RADIUS,
+                           fill='#FF8400', tags='metka')
 
 
 def b1(event):
@@ -109,6 +162,7 @@ def b1(event):
             tag_object += 1
             x_stena, y_stena = -1, -1
     elif vibor == 'метка':
+        canvas.delete('metka')
         canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID - RADIUS,
                            (event.x // SIZE_GRID) * SIZE_GRID + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + RADIUS,
                            fill='#FF2400', tags=str(tag_object))
@@ -154,7 +208,8 @@ def b1(event):
             t_x = max(len_x // (RADIUS * 10), 1)
             for i in range(1, t_x + 1):
                 canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS,
+                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
                                    fill='#FF2400',
                                    tags=str(tag_object))
                 tag_object += 1
@@ -172,7 +227,8 @@ def b1(event):
                                    fill='#FF2400', tags=str(tag_object))
                 tag_object += 1
                 canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
                                    fill='#FF2400', tags=str(tag_object))
                 tag_object += 1
 
@@ -180,19 +236,23 @@ def b1(event):
                                x_polka - 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
             tag_object += 1
             canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
+                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400',
+                               tags=str(tag_object))
             tag_object += 1
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF2400',
+                               tags=str(tag_object))
             tag_object += 1
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
             tag_object += 1
             x_polka, y_polka = -1, -1
 
     elif vibor == 'удалить':
         # res=event.widget.find_closest(event.x, event.y) # ctrl z
-        canvas.delete(event.widget.find_withtag("current"))
+        if canvas.gettags(canvas.find_closest(event.x, event.y)[0])[0] != 'setka':
+            canvas.delete(event.widget.find_withtag("current"))
         print(event.widget.find_withtag("current"))
 
 
@@ -233,8 +293,16 @@ image_delete = ImageTk.PhotoImage(image=Image.open("удалить.jpeg").resize
 button_delete = tk.Button(root, image=image_delete, command=do_delete)
 button_delete.place(x=10, y=460)
 
-canvas = tk.Canvas(bg="white", width=650, height=600)
+width = 650
+height = 600
+canvas = tk.Canvas(bg="white", width=width, height=height)
 canvas.place(x=10 + SIZE + 10, y=10)
+
+for line in range(0, width, 10):
+    canvas.create_line((line, 0), (line, height), fill='#DCDCDC', tags='setka')
+
+for line in range(0, height, 10):
+    canvas.create_line((0, line), (width, line), fill='#DCDCDC', tags='setka')
 
 canvas.bind('<Button-1>', b1)
 
