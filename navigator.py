@@ -76,9 +76,11 @@ def motion(event):
                 canvas.create_line(x_put, y_put, event.x - 2, event.y - 2, tags='line')
     elif vibor == 'метка':
         canvas.delete('metka')
-        Q=SIZE_GRID//2
-        canvas.create_oval((event.x // Q) * Q - RADIUS, (event.y // Q) * Q - RADIUS,
-                           (event.x // Q) * Q + RADIUS, (event.y // Q) * Q + RADIUS,
+        Q = SIZE_GRID // 2
+        canvas.create_oval((event.x // Q) * Q - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.y // Q) * Q - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.x // Q) * Q + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.y // Q) * Q + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                            fill='#FF8400', tags='metka')
 
 
@@ -100,10 +102,13 @@ def b1(event):
             x_stena, y_stena = -1, -1
     elif vibor == 'метка':
         canvas.delete('metka')
-        Q=SIZE_GRID//2
-        canvas.create_oval((event.x // Q) * Q - RADIUS, (event.y // Q) * Q - RADIUS,
-                           (event.x // Q) * Q + RADIUS, (event.y // Q) * Q + RADIUS,
+        Q = SIZE_GRID // 2
+        canvas.create_oval((event.x // Q) * Q - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.y // Q) * Q - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.x // Q) * Q + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                           (event.y // Q) * Q + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                            fill='#FF2400', tags=str(tag_object))
+
         tag_object += 1
     elif vibor == 'путь':
         global x_put, y_put
@@ -193,6 +198,35 @@ def b1(event):
         print(event.widget.find_withtag("current"))
 
 
+def scale_all(event):
+    global SIZE_GRID
+    x_scale = 2 if event.delta > 0 else 0.5
+    y_scale = 2 if event.delta > 0 else 0.5
+    if SIZE_GRID * x_scale > 2:
+        SIZE_GRID *= x_scale
+        global x_stena, y_stena
+        if x_stena != -1 and y_stena != -1:
+            x_stena = x_stena * x_scale
+            y_stena = y_stena * y_scale
+        global x_put, y_put
+        if x_put != -1 and y_put != -1:
+            x_put = x_put * x_scale
+            y_put = y_put * y_scale
+        global x_polka, y_polka
+        if x_polka != -1 and y_polka != -1:
+            x_polka = x_polka * x_scale
+            y_polka = y_polka * y_scale
+
+        canvas.delete('setka')
+        canvas.scale('all', 0, 0, x_scale, y_scale)
+        print(SIZE_GRID//_SIZE_SCALE)
+        for line in range(0, width, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((line, 0), (line, height), fill='#DCDCDC', tags='setka'))
+
+        for line in range(0, height, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((0, line), (width, line), fill='#DCDCDC', tags='setka'))
+
+
 vibor = 'стрелка'  # 'стрелка','стена','метка','путь','удалить'
 x_stena, y_stena = -1, -1
 x_put, y_put = -1, -1
@@ -202,9 +236,10 @@ tag_object = 0
 root = tk.Tk()
 root.geometry("800x650")
 
+_SIZE_SCALE = 8
 SIZE = 80
-RADIUS = 5
-SIZE_GRID = 10
+RADIUS = _SIZE_SCALE
+SIZE_GRID = _SIZE_SCALE
 
 image_strelka = ImageTk.PhotoImage(image=Image.open("стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_strelka = tk.Button(root, image=image_strelka, command=lambda: do_vibor('стрелка'))
@@ -235,12 +270,13 @@ height = 600
 canvas = tk.Canvas(bg="white", width=width, height=height)
 canvas.place(x=10 + SIZE + 10, y=10)
 
-for line in range(0, width, 10):
+for line in range(0, width, SIZE_GRID):
     canvas.create_line((line, 0), (line, height), fill='#DCDCDC', tags='setka')
 
-for line in range(0, height, 10):
+for line in range(0, height, SIZE_GRID):
     canvas.create_line((0, line), (width, line), fill='#DCDCDC', tags='setka')
 
 canvas.bind('<Button-1>', b1)
+canvas.bind("<MouseWheel>", scale_all)
 
 root.mainloop()
