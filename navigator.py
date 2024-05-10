@@ -31,40 +31,41 @@ def motion(event):
                                     (event.y // SIZE_GRID) * SIZE_GRID, fill="#E5E4E2", outline="#000000", tags='polka')
 
             len_x = abs((event.x // SIZE_GRID) * SIZE_GRID - x_polka)
-            t_x = max(len_x // (RADIUS * 10), 1)
+            t_x = max(int(len_x // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
+            print(t_x)
             for i in range(1, t_x + 1):
-                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2, (event.y // SIZE_GRID) * SIZE_GRID,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF8400',
                                    tags='polka')
-                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, y_polka,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS, y_polka - 2 * RADIUS,
+                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF8400',
                                    tags='polka')
             len_y = abs((event.y // SIZE_GRID) * SIZE_GRID - y_polka)
-            t_y = max(len_y // (RADIUS * 10), 1)
+            t_y = max(int(len_y // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
             for i in range(1, t_y + 1):
-                canvas.create_oval(x_polka, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   x_polka - 2 * RADIUS, y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                canvas.create_oval(x_polka, y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF8400', tags='polka')
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
-                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF8400', tags='polka')
 
             canvas.create_oval(x_polka, y_polka,
-                               x_polka - 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF8400', tags='polka')
+                               x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF8400', tags='polka')
 
             canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400',
+                               x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF8400',
                                tags='polka')
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF8400',
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF8400',
                                tags='polka')
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
-                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF8400', tags='polka')
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF8400', tags='polka')
 
             # print(abs(event.x-x_polka)//(RADIUS*10))
     elif vibor == 'путь':
@@ -148,47 +149,47 @@ def b1(event):
             tag_object += 1
 
             len_x = abs((event.x // SIZE_GRID) * SIZE_GRID - x_polka)
-            t_x = max(len_x // (RADIUS * 10), 1)
+            t_x = max(int(len_x // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
             for i in range(1, t_x + 1):
-                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
+                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2, (event.y // SIZE_GRID) * SIZE_GRID,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF2400',
                                    tags=str(tag_object))
                 tag_object += 1
-                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS, y_polka,
-                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS, y_polka - 2 * RADIUS,
+                canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka,
+                                   x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF2400',
                                    tags=str(tag_object))
                 tag_object += 1
 
             len_y = abs((event.y // SIZE_GRID) * SIZE_GRID - y_polka)
-            t_y = max(len_y // (RADIUS * 10), 1)
+            t_y = max(int(len_y // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
             for i in range(1, t_y + 1):
-                canvas.create_oval(x_polka, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   x_polka - 2 * RADIUS, y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                canvas.create_oval(x_polka, y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF2400', tags=str(tag_object))
                 tag_object += 1
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
-                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS,
+                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                                   y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE/2,
                                    fill='#FF2400', tags=str(tag_object))
                 tag_object += 1
 
             canvas.create_oval(x_polka, y_polka,
-                               x_polka - 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
+                               x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF2400', tags=str(tag_object))
             tag_object += 1
             canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                               x_polka - 2 * RADIUS, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400',
+                               x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF2400',
                                tags=str(tag_object))
             tag_object += 1
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, y_polka - 2 * RADIUS, fill='#FF2400',
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF2400',
                                tags=str(tag_object))
             tag_object += 1
             canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS,
-                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS, fill='#FF2400', tags=str(tag_object))
+                               (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2,
+                               (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE/2, fill='#FF2400', tags=str(tag_object))
             tag_object += 1
             x_polka, y_polka = -1, -1
     elif vibor == 'удалить':
