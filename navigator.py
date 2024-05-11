@@ -42,6 +42,18 @@ def draw_metka(x, y, tag, color):
 
 def draw_setka():
     canvas.delete('setka')
+    # for line3 in range(0, width, int(SIZE_GRID)*100):
+    #     canvas.tag_lower(canvas.create_line((line3, 0), (line3, height), fill='#7A7A7A', tags='setka'))
+    #
+    # for line3 in range(0, height, int(SIZE_GRID)*100):
+    #     canvas.tag_lower(canvas.create_line((0, line3), (width, line3), fill='#7A7A7A', tags='setka'))
+    #
+    for line2 in range(0, width, int(SIZE_GRID)*10):
+        canvas.tag_lower(canvas.create_line((line2, 0), (line2, height), fill='#B5B8B1', tags='setka'))
+
+    for line2 in range(0, height, int(SIZE_GRID)*10):
+        canvas.tag_lower(canvas.create_line((0, line2), (width, line2), fill='#B5B8B1', tags='setka'))
+
     for line1 in range(0, width, int(SIZE_GRID)):
         canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
 
@@ -239,8 +251,7 @@ def scale_all(event):
         if x_polka != -1 and y_polka != -1:
             x_polka = x_polka * x_scale
             y_polka = y_polka * y_scale
-
-        canvas.scale('all', 0, 0, x_scale, y_scale)
+        canvas.scale('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID, x_scale, y_scale)
         draw_setka()
 
 
