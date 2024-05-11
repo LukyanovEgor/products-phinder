@@ -1,5 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+import tkinter.filedialog as fd
 
 
 def do_vibor(stroka):
@@ -26,10 +27,11 @@ def motion(event):
             # print(tag_object)
     elif vibor == 'полка':
         if x_polka != -1 and y_polka != -1:
-            if event.x>x_polka and event.y>y_polka:
+            if event.x > x_polka and event.y > y_polka:  # присвоить 4 переменным координаты(min,max по x,y) и считать всё с ними
                 canvas.delete('polka')
                 canvas.create_rectangle(x_polka, y_polka, (event.x // SIZE_GRID) * SIZE_GRID,
-                                        (event.y // SIZE_GRID) * SIZE_GRID, fill="#E5E4E2", outline="#000000", tags='polka')
+                                        (event.y // SIZE_GRID) * SIZE_GRID, fill="#E5E4E2", outline="#000000",
+                                        tags='polka')
 
                 len_x = abs((event.x // SIZE_GRID) * SIZE_GRID - x_polka)
                 t_x = max(int(len_x // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
@@ -77,7 +79,6 @@ def motion(event):
                                    (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
                                    (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
                                    fill='#FF8400', tags='polka')
-
     elif vibor == 'путь':
         if x_put != -1 and y_put != -1:
             canvas.delete('line')
@@ -96,8 +97,7 @@ def motion(event):
     elif vibor == 'перемещение':
         if moving_status:
             global last_x, last_y
-            all_objects = canvas.find_all()
-            for obj in all_objects:
+            for obj in canvas.find_all():
                 if canvas.gettags(obj)[0] != 'setka':
                     canvas.move(obj, (event.x - last_x) * SIZE_GRID // 2, (event.y - last_y) * SIZE_GRID // 2)
             last_x = event.x
@@ -150,6 +150,13 @@ def on_press(event):
                     canvas.tag_lower(canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) // 2,
                                                         (massiv_coordinat[1] + massiv_coordinat[3]) // 2,
                                                         tags=str(tag_object), width=3, fill='blue'))
+                    canvas.delete('setka')
+                    for line1 in range(0, width, int(SIZE_GRID)):
+                        canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
+
+                    for line1 in range(0, height, int(SIZE_GRID)):
+                        canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
+
                     canvas.itemconfig(event.widget.find_withtag("current"))
                     tag_object += 1
                     x_put, y_put = -1, -1
@@ -268,6 +275,36 @@ def scale_all(event):
             canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
 
 
+def save_objects():
+    file_path = fd.asksaveasfilename(defaultextension='.txt')
+    with open(file_path, 'w') as file:
+        file.write(str(SIZE_GRID) + '\n')
+        for obj in canvas.find_all():
+            if canvas.gettags(obj)[0] != 'setka':
+                file.write(
+                    f"{canvas.type(obj)} {canvas.gettags(obj)[0]} {canvas.itemcget(obj, 'fill')} {canvas.coords(obj)}\n")
+
+
+def load_objects():
+    global tag_object, SIZE_GRID
+    file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
+    with open(file_path, 'r') as file:
+        SIZE_GRID = int(file.readline())
+        canvas.delete('all')
+        for line1 in range(0, width, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
+        for line1 in range(0, height, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
+
+        for line2 in file:
+            obj_type = line2.split()[0]
+            obj_tag = line2.split()[1]
+            obj_color = line2.split()[2]
+            coords = ' '.join(map(str, line2.split()[3:]))
+            tag_object = int(obj_tag) + 1
+            eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
+
+
 vibor = 'стрелка'  # выбор режима
 x_stena, y_stena = -1, -1
 x_put, y_put = -1, -1
@@ -311,6 +348,12 @@ button_move.place(x=10, y=460)
 image_delete = ImageTk.PhotoImage(image=Image.open("удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
 button_delete = tk.Button(root, image=image_delete, command=lambda: do_vibor('удалить'))
 button_delete.place(x=10, y=550)
+
+save_button = tk.Button(root, text='Сохранить', command=save_objects)
+save_button.place(x=400, y=620)
+
+load_button = tk.Button(root, text='Загрузить', command=load_objects)
+load_button.place(x=500, y=620)
 
 width = 650
 height = 600
