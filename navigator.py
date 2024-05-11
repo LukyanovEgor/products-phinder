@@ -182,18 +182,22 @@ def on_press(event):
                     y_put = (massiv_coordinat[1] + massiv_coordinat[3]) // 2
                     root.bind('<Motion>', motion)
                 else:
-
-                    canvas.delete('line')
-                    # canvas.itemconfig(event.widget.find_withtag("current"), fill="blue")
-                    massiv_coordinat = canvas.coords(item)
-                    canvas.tag_lower(canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) // 2,
-                                                        (massiv_coordinat[1] + massiv_coordinat[3]) // 2,
-                                                        tags=str(tag_object), width=3, fill='blue'))
-                    draw_setka()
-
-                    canvas.itemconfig(event.widget.find_withtag("current"))
-                    tag_object += 1
-                    x_put, y_put = -1, -1
+                    x1, y1, x2, y2 = canvas.coords('line')
+                    massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
+                    if not ('rectangle' in massiv):
+                        canvas.delete('line')
+                        # canvas.itemconfig(event.widget.find_withtag("current"), fill="blue")
+                        massiv_coordinat = canvas.coords(item)
+                        canvas.tag_lower(
+                            canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) // 2,
+                                               (massiv_coordinat[1] + massiv_coordinat[3]) // 2,
+                                               tags=str(tag_object), width=3, fill='blue'))
+                        draw_setka()
+                        canvas.itemconfig(event.widget.find_withtag("current"))
+                        tag_object += 1
+                        x_put, y_put = -1, -1
+                    else:
+                        print('линия находится слишком близко к стене')
         else:
             print('слишком маленький масштаб')
     elif vibor == 'полка':
