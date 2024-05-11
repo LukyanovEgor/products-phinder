@@ -27,58 +27,62 @@ def motion(event):
             # print(tag_object)
     elif vibor == 'полка':
         if x_polka != -1 and y_polka != -1:
-            if event.x > x_polka and event.y > y_polka:  # присвоить 4 переменным координаты(min,max по x,y) и считать всё с ними
-                canvas.delete('polka')
-                canvas.create_rectangle(x_polka, y_polka, (event.x // SIZE_GRID) * SIZE_GRID,
-                                        (event.y // SIZE_GRID) * SIZE_GRID, fill="#E5E4E2", outline="#000000",
-                                        tags='polka')
+            canvas.delete('polka')
+            x_left = min(x_polka, (event.x // SIZE_GRID) * SIZE_GRID)
+            x_right = max(x_polka, (event.x // SIZE_GRID) * SIZE_GRID)
+            y_up = min(y_polka, (event.y // SIZE_GRID) * SIZE_GRID)
+            y_down = max(y_polka, (event.y // SIZE_GRID) * SIZE_GRID)
+            otstup = RADIUS * SIZE_GRID // _SIZE_SCALE
+            canvas.create_rectangle(x_left, y_up, x_right,
+                                    y_down, fill="#E5E4E2", outline="#000000",
+                                    tags='polka')
 
-                len_x = abs((event.x // SIZE_GRID) * SIZE_GRID - x_polka)
-                t_x = max(int(len_x // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
-                for i in range(1, t_x + 1):
-                    canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.y // SIZE_GRID) * SIZE_GRID,
-                                       x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF8400',
-                                       tags='polka')
-                    canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka,
-                                       x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF8400',
-                                       tags='polka')
-                len_y = abs((event.y // SIZE_GRID) * SIZE_GRID - y_polka)
-                t_y = max(int(len_y // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
-                for i in range(1, t_y + 1):
-                    canvas.create_oval(x_polka,
-                                       y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF8400', tags='polka')
-                    canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID,
-                                       y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF8400', tags='polka')
-
-                canvas.create_oval(x_polka, y_polka,
-                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2, fill='#FF8400', tags='polka')
-
-                canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
+            len_x = abs(x_right - x_left)
+            t_x = max(int(len_x // (otstup * 10)), 1)
+            for i in range(1, t_x + 1):
+                canvas.create_oval(x_left + (i * (len_x // (t_x + 1))) + otstup / 2,
+                                   y_down,
+                                   x_left + (i * (len_x // (t_x + 1))) - otstup / 2,
+                                   y_down + 2 * otstup / 2,
                                    fill='#FF8400',
                                    tags='polka')
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2, fill='#FF8400',
+                canvas.create_oval(x_left + (i * (len_x // (t_x + 1))) + otstup / 2,
+                                   y_up,
+                                   x_left + (i * (len_x // (t_x + 1))) - otstup / 2,
+                                   y_up - 2 * otstup / 2,
+                                   fill='#FF8400',
                                    tags='polka')
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
+            len_y = abs(y_down - y_up)
+            t_y = max(int(len_y // (otstup * 10)), 1)
+            for i in range(1, t_y + 1):
+                canvas.create_oval(x_left,
+                                   y_up + (i * (len_y // (t_y + 1))) - otstup / 2,
+                                   x_left - 2 * otstup / 2,
+                                   y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
                                    fill='#FF8400', tags='polka')
+                canvas.create_oval(x_right,
+                                   y_up + (i * (len_y // (t_y + 1))) - otstup / 2,
+                                   x_right + 2 * otstup / 2,
+                                   y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
+                                   fill='#FF8400', tags='polka')
+
+            canvas.create_oval(x_left, y_up,
+                               x_left - 2 * otstup / 2,
+                               y_up - 2 * otstup / 2, fill='#FF8400', tags='polka')
+
+            canvas.create_oval(x_left, y_down,
+                               x_left - 2 * otstup / 2,
+                               y_down + 2 * otstup / 2,
+                               fill='#FF8400',
+                               tags='polka')
+            canvas.create_oval(x_right, y_up,
+                               x_right + 2 * otstup / 2,
+                               y_up - 2 * otstup / 2, fill='#FF8400',
+                               tags='polka')
+            canvas.create_oval(x_right, y_down,
+                               x_right + 2 * otstup / 2,
+                               y_down + 2 * otstup / 2,
+                               fill='#FF8400', tags='polka')
     elif vibor == 'путь':
         if x_put != -1 and y_put != -1:
             canvas.delete('line')
@@ -169,71 +173,74 @@ def on_press(event):
             y_polka = (event.y // SIZE_GRID) * SIZE_GRID
             root.bind('<Motion>', motion)
         else:
-            if event.x > x_polka and event.y > y_polka:
+            canvas.delete('polka')
+            x_left = min(x_polka, (event.x // SIZE_GRID) * SIZE_GRID)
+            x_right = max(x_polka, (event.x // SIZE_GRID) * SIZE_GRID)
+            y_up = min(y_polka, (event.y // SIZE_GRID) * SIZE_GRID)
+            y_down = max(y_polka, (event.y // SIZE_GRID) * SIZE_GRID)
+            otstup = RADIUS * SIZE_GRID // _SIZE_SCALE
+            canvas.create_rectangle(x_left, y_up, x_right,
+                                    y_down, fill="#D5D5D5", outline="#000000",
+                                    tags=str(tag_object))
+            tag_object += 1
 
-                canvas.delete('polka')
-
-                canvas.create_rectangle(x_polka, y_polka, (event.x // SIZE_GRID) * SIZE_GRID,
-                                        (event.y // SIZE_GRID) * SIZE_GRID, fill="#D5D5D5", outline="#000000",
-                                        tags=str(tag_object))
-                tag_object += 1
-
-                len_x = abs((event.x // SIZE_GRID) * SIZE_GRID - x_polka)
-                t_x = max(int(len_x // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
-                for i in range(1, t_x + 1):
-                    canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.y // SIZE_GRID) * SIZE_GRID,
-                                       x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF2400',
-                                       tags=str(tag_object))
-                    tag_object += 1
-                    canvas.create_oval(x_polka + (i * (len_x // (t_x + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka,
-                                       x_polka + (i * (len_x // (t_x + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF2400',
-                                       tags=str(tag_object))
-                    tag_object += 1
-
-                len_y = abs((event.y // SIZE_GRID) * SIZE_GRID - y_polka)
-                t_y = max(int(len_y // (RADIUS * SIZE_GRID // _SIZE_SCALE * 10)), 1)
-                for i in range(1, t_y + 1):
-                    canvas.create_oval(x_polka,
-                                       y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF2400', tags=str(tag_object))
-                    tag_object += 1
-                    canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID,
-                                       y_polka + (i * (len_y // (t_y + 1))) - RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       y_polka + (i * (len_y // (t_y + 1))) + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                       fill='#FF2400', tags=str(tag_object))
-                    tag_object += 1
-
-                canvas.create_oval(x_polka, y_polka,
-                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2, fill='#FF2400',
-                                   tags=str(tag_object))
-                tag_object += 1
-                canvas.create_oval(x_polka, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   x_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
+            len_x = abs(x_right - x_left)
+            t_x = max(int(len_x // (otstup * 10)), 1)
+            for i in range(1, t_x + 1):
+                canvas.create_oval(x_left + (i * (len_x // (t_x + 1))) + otstup / 2,
+                                   y_down,
+                                   x_left + (i * (len_x // (t_x + 1))) - otstup / 2,
+                                   y_down + 2 * otstup / 2,
                                    fill='#FF2400',
                                    tags=str(tag_object))
                 tag_object += 1
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, y_polka,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   y_polka - 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2, fill='#FF2400',
+                canvas.create_oval(x_left + (i * (len_x // (t_x + 1))) + otstup / 2,
+                                   y_up,
+                                   x_left + (i * (len_x // (t_x + 1))) - otstup / 2,
+                                   y_up - 2 * otstup / 2,
+                                   fill='#FF2400',
                                    tags=str(tag_object))
                 tag_object += 1
-                canvas.create_oval((event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID,
-                                   (event.x // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
-                                   (event.y // SIZE_GRID) * SIZE_GRID + 2 * RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
+
+            len_y = abs(y_down - y_up)
+            t_y = max(int(len_y // (otstup * 10)), 1)
+            for i in range(1, t_y + 1):
+                canvas.create_oval(x_left,
+                                   y_up + (i * (len_y // (t_y + 1))) - otstup / 2,
+                                   x_left - 2 * otstup / 2,
+                                   y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
                                    fill='#FF2400', tags=str(tag_object))
                 tag_object += 1
-                x_polka, y_polka = -1, -1
+                canvas.create_oval(x_right,
+                                   y_up + (i * (len_y // (t_y + 1))) - otstup / 2,
+                                   x_right + 2 * otstup / 2,
+                                   y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
+                                   fill='#FF2400', tags=str(tag_object))
+                tag_object += 1
+
+            canvas.create_oval(x_left, y_up,
+                               x_left - 2 * otstup / 2,
+                               y_up - 2 * otstup / 2, fill='#FF2400',
+                               tags=str(tag_object))
+            tag_object += 1
+            canvas.create_oval(x_left, y_down,
+                               x_left - 2 * otstup / 2,
+                               y_down + 2 * otstup / 2,
+                               fill='#FF2400',
+                               tags=str(tag_object))
+            tag_object += 1
+            canvas.create_oval(x_right, y_up,
+                               x_right + 2 * otstup / 2,
+                               y_up - 2 * otstup / 2, fill='#FF2400',
+                               tags=str(tag_object))
+            tag_object += 1
+            canvas.create_oval(x_right, y_down,
+                               x_right + 2 * otstup / 2,
+                               y_down + 2 * otstup / 2,
+                               fill='#FF2400', tags=str(tag_object))
+
+            tag_object += 1
+            x_polka, y_polka = -1, -1
     elif vibor == 'удалить':
         # res=event.widget.find_closest(event.x, event.y) # ctrl z
         if canvas.gettags(canvas.find_closest(event.x, event.y)[0])[0] != 'setka':
@@ -278,18 +285,19 @@ def scale_all(event):
 def save_objects():
     file_path = fd.asksaveasfilename(defaultextension='.txt')
     with open(file_path, 'w') as file:
-        file.write(str(SIZE_GRID) + '\n')
+        file.write(str(int(SIZE_GRID)) + '\n')
         for obj in canvas.find_all():
             if canvas.gettags(obj)[0] != 'setka':
                 file.write(
-                    f"{canvas.type(obj)} {canvas.gettags(obj)[0]} {canvas.itemcget(obj, 'fill')} {canvas.coords(obj)}\n")
+                    f"{canvas.type(obj)} {canvas.gettags(obj)[0]} {canvas.itemcget(obj, 'fill')} {canvas.coords(obj)}\n"
+                )
 
 
 def load_objects():
     global tag_object, SIZE_GRID
     file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
     with open(file_path, 'r') as file:
-        SIZE_GRID = int(file.readline())
+        SIZE_GRID = int(file.readline().replace('\n', ''))
         canvas.delete('all')
         for line1 in range(0, width, int(SIZE_GRID)):
             canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
@@ -302,7 +310,10 @@ def load_objects():
             obj_color = line2.split()[2]
             coords = ' '.join(map(str, line2.split()[3:]))
             tag_object = int(obj_tag) + 1
-            eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
+            if obj_type == 'line':
+                eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}",width=3)')
+            else:
+                eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
 
 
 vibor = 'стрелка'  # выбор режима
@@ -314,6 +325,7 @@ moving_status = False
 
 tag_object = 0
 root = tk.Tk()
+root.title('навигатор')
 root.geometry("800x650")
 
 _SIZE_SCALE = 8
