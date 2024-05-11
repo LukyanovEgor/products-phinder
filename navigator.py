@@ -240,6 +240,18 @@ def scale_all(event):
         draw_setka()
 
 
+def reset():  # сброс всех переменных
+    global tag_object, vibor, moving_status, tag_object
+    global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y
+    vibor = 'стрелка'  # выбор режима
+    x_stena, y_stena = -1, -1
+    x_put, y_put = -1, -1
+    x_polka, y_polka = -1, -1
+    last_x, last_y = -1, -1
+    moving_status = False
+    tag_object = 0
+
+
 def save_objects():
     file_path = fd.asksaveasfilename(defaultextension='.txt')
     with open(file_path, 'w') as file:
@@ -258,7 +270,7 @@ def load_objects():
         SIZE_GRID = int(file.readline().replace('\n', ''))
         canvas.delete('all')
         draw_setka()
-
+        reset()
         for line2 in file:
             obj_type = line2.split()[0]
             obj_tag = line2.split()[1]
@@ -277,8 +289,8 @@ x_put, y_put = -1, -1
 x_polka, y_polka = -1, -1
 last_x, last_y = -1, -1
 moving_status = False
-
 tag_object = 0
+
 root = tk.Tk()
 root.title('навигатор')
 root.geometry("800x650")
