@@ -238,6 +238,7 @@ def scale_all(event):
     x_scale = 2 if event.delta > 0 else 0.5
     y_scale = 2 if event.delta > 0 else 0.5
     if 128 >= SIZE_GRID * x_scale >= 1:
+        canvas.move('all',-(event.x//SIZE_GRID)*SIZE_GRID,-(event.y//SIZE_GRID)*SIZE_GRID)
         SIZE_GRID *= x_scale
         global x_stena, y_stena
         if x_stena != -1 and y_stena != -1:
@@ -251,7 +252,9 @@ def scale_all(event):
         if x_polka != -1 and y_polka != -1:
             x_polka = x_polka * x_scale
             y_polka = y_polka * y_scale
-        canvas.scale('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID, x_scale, y_scale)
+        #canvas.scale('all', SIZE_GRID*10, SIZE_GRID*10, x_scale, y_scale)
+        canvas.scale('all', 0, 0, x_scale, y_scale)
+        canvas.move('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID)
         draw_setka()
 
 
