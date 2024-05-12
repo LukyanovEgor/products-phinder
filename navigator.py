@@ -42,18 +42,6 @@ def draw_metka(x, y, tag, color):
 
 def draw_setka():
     canvas.delete('setka')
-    # for line3 in range(0, width, int(SIZE_GRID)*100):
-    #     canvas.tag_lower(canvas.create_line((line3, 0), (line3, height), fill='#7A7A7A', tags='setka'))
-    #
-    # for line3 in range(0, height, int(SIZE_GRID)*100):
-    #     canvas.tag_lower(canvas.create_line((0, line3), (width, line3), fill='#7A7A7A', tags='setka'))
-    #
-    for line2 in range(0, width, int(SIZE_GRID)*10):
-        canvas.tag_lower(canvas.create_line((line2, 0), (line2, height), fill='#B5B8B1', tags='setka'))
-
-    for line2 in range(0, height, int(SIZE_GRID)*10):
-        canvas.tag_lower(canvas.create_line((0, line2), (width, line2), fill='#B5B8B1', tags='setka'))
-
     for line1 in range(0, width, int(SIZE_GRID)):
         canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
 
@@ -238,7 +226,7 @@ def scale_all(event):
     x_scale = 2 if event.delta > 0 else 0.5
     y_scale = 2 if event.delta > 0 else 0.5
     if 128 >= SIZE_GRID * x_scale >= 1:
-        canvas.move('all',-(event.x//SIZE_GRID)*SIZE_GRID,-(event.y//SIZE_GRID)*SIZE_GRID)
+        canvas.move('all', -(event.x // SIZE_GRID) * SIZE_GRID, -(event.y // SIZE_GRID) * SIZE_GRID)
         SIZE_GRID *= x_scale
         global x_stena, y_stena
         if x_stena != -1 and y_stena != -1:
@@ -252,7 +240,6 @@ def scale_all(event):
         if x_polka != -1 and y_polka != -1:
             x_polka = x_polka * x_scale
             y_polka = y_polka * y_scale
-        #canvas.scale('all', SIZE_GRID*10, SIZE_GRID*10, x_scale, y_scale)
         canvas.scale('all', 0, 0, x_scale, y_scale)
         canvas.move('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID)
         draw_setka()
@@ -346,11 +333,45 @@ image_delete = ImageTk.PhotoImage(image=Image.open("удалить.jpeg").resize
 button_delete = tk.Button(root, image=image_delete, command=lambda: do_vibor('удалить'))
 button_delete.place(x=10, y=550)
 
-save_button = tk.Button(root, text='Сохранить', command=save_objects)
-save_button.place(x=400, y=620)
+menu = tk.Menu()
 
-load_button = tk.Button(root, text='Загрузить', command=load_objects)
-load_button.place(x=500, y=620)
+file_menu = tk.Menu(menu, tearoff=0)
+file_menu.add_command(label="Сохранить как", command=save_objects)
+file_menu.add_command(label="Загрузить", command=load_objects)
+file_menu.add_separator()
+file_menu.add_command(label="Выйти", command=lambda: exit())
+menu.add_cascade(label="Файл", menu=file_menu)
+
+settings_menu = tk.Menu(menu, tearoff=0)
+settings_menu.add_command(label="Подключение БД")
+settings_menu.add_command(label="Подключение телеграм бота")
+settings_menu.add_command(label="Поиск")
+menu.add_cascade(label="Настройки", menu=settings_menu)
+
+vid_menu = tk.Menu(menu, tearoff=0)
+vid_menu.add_command(label="Размер")
+vid_menu.add_command(label="Отображение сетки")
+vid_menu.add_command(label="Отображение текста")
+menu.add_cascade(label="Вид", menu=vid_menu)
+
+tool_menu = tk.Menu(menu, tearoff=0)
+tool_menu.add_command(label="Стена")
+tool_menu.add_command(label="Полка")
+tool_menu.add_command(label="Метка")
+tool_menu.add_command(label="Путь")
+tool_menu.add_command(label="Текст")
+tool_menu.add_command(label="Линейка")
+tool_menu.add_separator()
+tool_menu.add_command(label="Перемещение")
+tool_menu.add_command(label="Масштабирование")
+menu.add_cascade(label="Инструменты", menu=tool_menu)
+
+information_menu = tk.Menu(menu, tearoff=0)
+information_menu.add_command(label="О нас")
+information_menu.add_command(label="Как пользоваться")
+menu.add_cascade(label="О приложении", menu=information_menu)
+
+root.config(menu=menu)
 
 width = 650
 height = 600
