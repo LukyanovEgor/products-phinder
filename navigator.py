@@ -54,11 +54,12 @@ def draw_metka(x, y, tag, color):
 
 def draw_setka():
     canvas.delete('setka')
-    for line1 in range(0, width, int(SIZE_GRID)):
-        canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
+    if setka_show.get() == 1:
+        for line1 in range(0, width, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((line1, 0), (line1, height), fill='#DCDCDC', tags='setka'))
 
-    for line1 in range(0, height, int(SIZE_GRID)):
-        canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
+        for line1 in range(0, height, int(SIZE_GRID)):
+            canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
 
 
 def draw_polka(x, y, tag, color_rect, color_circle):
@@ -381,6 +382,10 @@ def connect_dots():
     progress.destroy()
 
 
+root = tk.Tk()
+root.title('навигатор')
+root.geometry("800x650")
+
 vibor = 'стрелка'  # выбор режима
 x_stena, y_stena = -1, -1
 x_put, y_put = -1, -1
@@ -391,10 +396,8 @@ scale_status = True
 information_menu_status = False
 tag_object = 0
 start_coordinat_tag = ''
-
-root = tk.Tk()
-root.title('навигатор')
-root.geometry("800x650")
+setka_show = tk.BooleanVar()
+setka_show.set(True)
 
 _SIZE_SCALE = 8
 SIZE = 80
@@ -449,7 +452,7 @@ menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
 vid_menu.add_command(label="Размер")
-vid_menu.add_command(label="Отображение сетки")
+vid_menu.add_checkbutton(label="Отображение сетки", onvalue=1, offvalue=0, variable=setka_show, command=draw_setka)
 vid_menu.add_command(label="Отображение текста")
 menu.add_cascade(label="Вид", menu=vid_menu)
 
