@@ -4,18 +4,28 @@ import tkinter.filedialog as fd
 from tkinter import ttk
 
 
-def do_vibor(stroka):
-    global vibor, x_polka, y_polka, x_stena, y_stena, x_put, y_put
-    vibor = stroka
-    if vibor == 'метка':
-        canvas.bind('<Motion>', motion)
+def reset(tag_object_flag=True):  # сброс всех переменных
+    global tag_object, vibor, moving_status, tag_object
+    global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y
     x_stena, y_stena = -1, -1
     x_put, y_put = -1, -1
     x_polka, y_polka = -1, -1
+    last_x, last_y = -1, -1
+    moving_status = False
+    if tag_object_flag:
+        tag_object = 0
     canvas.delete('metka')
     canvas.delete('polka')
     canvas.delete('line')
     canvas.delete('stena')
+
+
+def do_vibor(stroka):
+    reset()
+    global vibor
+    vibor = stroka
+    if vibor == 'метка':
+        canvas.bind('<Motion>', motion)
     print(vibor)
 
 
@@ -222,11 +232,34 @@ def on_press(event):
         canvas.bind('<Motion>', motion)
 
 
+def on_press_right(event):
+    reset(tag_object_flag=False)
+    item = event.widget.find_withtag("current")
+    item_type = canvas.type(item)
+    m = tk.Menu(root, tearoff=0)
+    if (item_type != "line" or canvas.gettags(item)[0] != "setka") and len(canvas.gettags(item)) > 0:
+        m.add_command(label=f'переместить')
+        m.add_command(label=f'удалить')
+        m.add_separator()
+        m.add_command(label=f'индекс элемента={canvas.gettags(item)[0]}')
+        m.add_command(label=f'координаты элемента={canvas.coords(item)}')
+
+    else:
+        m.add_command(label="Копировать")
+        m.add_command(label="Вставить")
+        m.add_separator()
+        m.add_command(label="Переименовать")
+    try:
+        m.tk_popup(event.x_root, event.y_root)
+    finally:
+        m.grab_release()
+
+
 def scale_all(event):
     global SIZE_GRID
     x_scale = 2 if event.delta > 0 else 0.5
     y_scale = 2 if event.delta > 0 else 0.5
-    if 128 >= SIZE_GRID * x_scale >= 1:
+    if 128 >= SIZE_GRID * x_scale >= 1 and scale_status:
         canvas.move('all', -(event.x // SIZE_GRID) * SIZE_GRID, -(event.y // SIZE_GRID) * SIZE_GRID)
         SIZE_GRID *= x_scale
         global x_stena, y_stena
@@ -244,19 +277,6 @@ def scale_all(event):
         canvas.scale('all', 0, 0, x_scale, y_scale)
         canvas.move('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID)
         draw_setka()
-
-
-def reset(tag_object_flag=True):  # сброс всех переменных
-    global tag_object, vibor, moving_status, tag_object
-    global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y
-    vibor = 'стрелка'  # выбор режима
-    x_stena, y_stena = -1, -1
-    x_put, y_put = -1, -1
-    x_polka, y_polka = -1, -1
-    last_x, last_y = -1, -1
-    moving_status = False
-    if tag_object_flag:
-        tag_object = 0
 
 
 def save_objects():
@@ -295,7 +315,9 @@ def loading_connect_dots(progress_bar):
     for widget in root.winfo_children():
         if widget.winfo_class() == 'Button':
             widget["state"] = "disabled"
-    global tag_object
+    global tag_object, scale_status
+    scale_status = False
+
     reset(tag_object_flag=False)
     mas = []
     for obj in canvas.find_all():
@@ -322,6 +344,7 @@ def loading_connect_dots(progress_bar):
     for widget in root.winfo_children():
         if widget.winfo_class() == 'Button':
             widget["state"] = "normal"
+    scale_status = True
 
 
 def connect_dots():
@@ -338,6 +361,7 @@ x_put, y_put = -1, -1
 x_polka, y_polka = -1, -1
 last_x, last_y = -1, -1
 moving_status = False
+scale_status = True
 tag_object = 0
 
 root = tk.Tk()
@@ -427,5 +451,6 @@ draw_setka()
 
 canvas.bind('<Button-1>', on_press)
 canvas.bind("<MouseWheel>", scale_all)
+canvas.bind('<Button-3>', on_press_right)
 
 root.mainloop()
