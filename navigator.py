@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import tkinter.filedialog as fd
+from tkinter import ttk
 
 
 def do_vibor(stroka):
@@ -290,7 +291,7 @@ def load_objects():
         tag_object = tag_object + 1
 
 
-def connect_dots():
+def loading_connect_dots(progress_bar):
     global tag_object
     reset(tag_object_flag=False)
     mas = []
@@ -301,11 +302,10 @@ def connect_dots():
     canvas.delete('setka')
 
     for x in range(len(mas) - 1):
+        progress_bar['value'] = x / len(mas) * 100
+        root.update()
         for y in range(len(mas)):
-            print(x, y, len(mas))
-            canvas.tag_lower(
-                canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
-                                   tags='line', fill='blue'))
+            canvas.tag_lower(canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],tags='line', fill='blue'))
             x1, y1, x2, y2 = canvas.coords('line')
             massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
             if not ('rectangle' in massiv):
@@ -314,7 +314,16 @@ def connect_dots():
                     canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
                                        tags=str(tag_object), width=3, fill='blue'))
                 tag_object += 1
+    progress_bar['value'] = 100
     draw_setka()
+
+
+def connect_dots():
+    progress = ttk.Progressbar(root, length=300, mode='determinate')
+    progress.place(x=width - 200, y=height + 20)
+    progress['maximum'] = 100
+    loading_connect_dots(progress)
+    progress.destroy()
 
 
 vibor = 'стрелка'  # выбор режима
