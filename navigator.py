@@ -292,6 +292,9 @@ def load_objects():
 
 
 def loading_connect_dots(progress_bar):
+    for widget in root.winfo_children():
+        if widget.winfo_class() == 'Button':
+            widget["state"] = "disabled"
     global tag_object
     reset(tag_object_flag=False)
     mas = []
@@ -305,7 +308,7 @@ def loading_connect_dots(progress_bar):
         progress_bar['value'] = x / len(mas) * 100
         root.update()
         for y in range(len(mas)):
-            canvas.tag_lower(canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],tags='line', fill='blue'))
+            canvas.tag_lower(canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2], tags='line', fill='blue'))
             x1, y1, x2, y2 = canvas.coords('line')
             massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
             if not ('rectangle' in massiv):
@@ -316,6 +319,9 @@ def loading_connect_dots(progress_bar):
                 tag_object += 1
     progress_bar['value'] = 100
     draw_setka()
+    for widget in root.winfo_children():
+        if widget.winfo_class() == 'Button':
+            widget["state"] = "normal"
 
 
 def connect_dots():
