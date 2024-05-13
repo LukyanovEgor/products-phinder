@@ -245,7 +245,7 @@ def scale_all(event):
         draw_setka()
 
 
-def reset():  # сброс всех переменных
+def reset(tag_object_flag=True):  # сброс всех переменных
     global tag_object, vibor, moving_status, tag_object
     global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y
     vibor = 'стрелка'  # выбор режима
@@ -254,7 +254,8 @@ def reset():  # сброс всех переменных
     x_polka, y_polka = -1, -1
     last_x, last_y = -1, -1
     moving_status = False
-    tag_object = 0
+    if tag_object_flag:
+        tag_object = 0
 
 
 def save_objects():
@@ -281,11 +282,39 @@ def load_objects():
             obj_tag = line2.split()[1]
             obj_color = line2.split()[2]
             coords = ' '.join(map(str, line2.split()[3:]))
-            tag_object = int(obj_tag) + 1
+            tag_object = max(int(obj_tag), tag_object)
             if obj_type == 'line':
                 eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}",width=3)')
             else:
                 eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
+        tag_object = tag_object + 1
+
+
+def connect_dots():
+    global tag_object
+    reset(tag_object_flag=False)
+    mas = []
+    for obj in canvas.find_all():
+        if canvas.type(obj) == 'oval' and canvas.gettags(obj)[0] != 'metka':
+            mas_coord = canvas.coords(obj)
+            mas.append([canvas.gettags(obj)[0], (mas_coord[0] + mas_coord[2]) // 2, (mas_coord[1] + mas_coord[3]) // 2])
+    canvas.delete('setka')
+
+    for x in range(len(mas) - 1):
+        for y in range(len(mas)):
+            print(x, y, len(mas))
+            canvas.tag_lower(
+                canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
+                                   tags='line', fill='blue'))
+            x1, y1, x2, y2 = canvas.coords('line')
+            massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
+            if not ('rectangle' in massiv):
+                canvas.delete('line')
+                canvas.tag_lower(
+                    canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
+                                       tags=str(tag_object), width=3, fill='blue'))
+                tag_object += 1
+    draw_setka()
 
 
 vibor = 'стрелка'  # выбор режима
@@ -345,6 +374,7 @@ menu.add_cascade(label="Файл", menu=file_menu)
 settings_menu = tk.Menu(menu, tearoff=0)
 settings_menu.add_command(label="Подключение БД")
 settings_menu.add_command(label="Подключение телеграм бота")
+settings_menu.add_command(label="Соединение всех меток", command=connect_dots)
 settings_menu.add_command(label="Поиск")
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
