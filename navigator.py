@@ -21,7 +21,7 @@ def reset(tag_object_flag=True):  # сброс всех переменных
 
 
 def do_vibor(stroka):
-    reset()
+    reset(tag_object_flag=False)
     global vibor
     vibor = stroka
     if vibor == 'метка':
@@ -48,6 +48,7 @@ def draw_metka(x, y, tag, color):
                        (y // q) * q + RADIUS * SIZE_GRID // _SIZE_SCALE / 2,
                        fill=color, tags=tag)
     if tag != 'metka':
+        MASSIV_CONNECT[str(tag_object)] = set()
         tag_object += 1
 
 
@@ -168,7 +169,7 @@ def motion(event):
             return
 
 
-def on_press(event):
+def on_press_left(event):
     global tag_object
     if vibor == 'стена':
         global x_stena, y_stena
@@ -187,11 +188,14 @@ def on_press(event):
         item_type = canvas.type(item)
         if SIZE_GRID > 1:
             if item_type == "oval":
+                global MASSIV_CONNECT, start_coordinat_tag
                 if x_put == -1 and y_put == -1:
+                    start_coordinat_tag = canvas.gettags(item)[0]
                     massiv_coordinat = canvas.coords(item)
                     x_put = (massiv_coordinat[0] + massiv_coordinat[2]) // 2
                     y_put = (massiv_coordinat[1] + massiv_coordinat[3]) // 2
                     root.bind('<Motion>', motion)
+                    canvas.gettags(item)
                 else:
                     x1, y1, x2, y2 = canvas.coords('line')
                     massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
@@ -205,6 +209,10 @@ def on_press(event):
                                                tags=str(tag_object), width=3, fill='blue'))
                         draw_setka()
                         canvas.itemconfig(event.widget.find_withtag("current"))
+                        MASSIV_CONNECT[start_coordinat_tag].add(canvas.gettags(item)[0])
+                        MASSIV_CONNECT[canvas.gettags(item)[0]].add(start_coordinat_tag)
+                        print(MASSIV_CONNECT)
+
                         tag_object += 1
                         x_put, y_put = -1, -1
                     else:
@@ -233,25 +241,28 @@ def on_press(event):
 
 
 def on_press_right(event):
-    reset(tag_object_flag=False)
+    global information_menu_status
+    information_menu_status = not information_menu_status
     item = event.widget.find_withtag("current")
     item_type = canvas.type(item)
     m = tk.Menu(root, tearoff=0)
-    if (item_type != "line" or canvas.gettags(item)[0] != "setka") and len(canvas.gettags(item)) > 0:
-        m.add_command(label=f'переместить')
-        m.add_command(label=f'удалить')
-        m.add_separator()
-        m.add_command(label=f'индекс элемента={canvas.gettags(item)[0]}')
-        m.add_command(label=f'координаты элемента={canvas.coords(item)}')
+    if information_menu_status:
+        if (item_type != "line" or canvas.gettags(item)[0] != "setka") and len(canvas.gettags(item)) > 0:
+            m.add_command(label=f'переместить')
+            m.add_command(label=f'удалить')
+            m.add_separator()
+            m.add_command(label=f'индекс элемента={canvas.gettags(item)[0]}')
+            m.add_command(label=f'координаты элемента={canvas.coords(item)}')
+            if item_type == "oval":
+                m.add_command(label=f'связан с={MASSIV_CONNECT[canvas.gettags(item)[0]]}')
 
-    else:
-        m.add_command(label="Копировать")
-        m.add_command(label="Вставить")
-        m.add_separator()
-        m.add_command(label="Переименовать")
-    try:
+        else:
+            m.add_command(label="Копировать")
+            m.add_command(label="Вставить")
+            m.add_separator()
+            m.add_command(label="Переименовать")
         m.tk_popup(event.x_root, event.y_root)
-    finally:
+    else:
         m.grab_release()
 
 
@@ -283,32 +294,47 @@ def save_objects():
     file_path = fd.asksaveasfilename(defaultextension='.txt')
     with open(file_path, 'w') as file:
         file.write(str(int(SIZE_GRID)) + '\n')
-        for obj in canvas.find_all():
+        canvas.delete('setka')
+        mas = canvas.find_all()
+        file.write(str(len(mas)) + '\n')
+        for obj in mas:
             if canvas.gettags(obj)[0] != 'setka':
                 file.write(
                     f"{canvas.type(obj)} {canvas.gettags(obj)[0]} {canvas.itemcget(obj, 'fill')} {canvas.coords(obj)}\n"
                 )
+        draw_setka()
+        file.write(str(len(MASSIV_CONNECT)) + '\n')
+        for i in MASSIV_CONNECT:
+            file.write(f'{i} {" ".join(MASSIV_CONNECT[i])}\n')
 
 
 def load_objects():
-    global tag_object, SIZE_GRID
+    global tag_object, SIZE_GRID, MASSIV_CONNECT
     file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
     with open(file_path, 'r') as file:
         SIZE_GRID = int(file.readline().replace('\n', ''))
         canvas.delete('all')
         draw_setka()
         reset()
-        for line2 in file:
-            obj_type = line2.split()[0]
-            obj_tag = line2.split()[1]
-            obj_color = line2.split()[2]
-            coords = ' '.join(map(str, line2.split()[3:]))
+        n = int(file.readline())
+        for _ in range(n):
+            line = file.readline().split()
+            obj_type = line[0]
+            obj_tag = line[1]
+            obj_color = line[2]
+            coords = ' '.join(map(str, line[3:]))
             tag_object = max(int(obj_tag), tag_object)
             if obj_type == 'line':
                 eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}",width=3)')
             else:
                 eval(f'canvas.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
         tag_object = tag_object + 1
+        n = int(file.readline())
+        for _ in range(n):
+            line = file.readline().split()
+            ind = line[0]
+            value = line[1:]
+            MASSIV_CONNECT[ind] = set(value)
 
 
 def loading_connect_dots(progress_bar):
@@ -362,7 +388,9 @@ x_polka, y_polka = -1, -1
 last_x, last_y = -1, -1
 moving_status = False
 scale_status = True
+information_menu_status = False
 tag_object = 0
+start_coordinat_tag = ''
 
 root = tk.Tk()
 root.title('навигатор')
@@ -372,6 +400,8 @@ _SIZE_SCALE = 8
 SIZE = 80
 RADIUS = _SIZE_SCALE
 SIZE_GRID = _SIZE_SCALE
+
+MASSIV_CONNECT = {}
 
 image_strelka = ImageTk.PhotoImage(image=Image.open("стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_strelka = tk.Button(root, image=image_strelka, command=lambda: do_vibor('стрелка'))
@@ -449,7 +479,7 @@ canvas.place(x=10 + SIZE + 10, y=10)
 
 draw_setka()
 
-canvas.bind('<Button-1>', on_press)
+canvas.bind('<Button-1>', on_press_left)
 canvas.bind("<MouseWheel>", scale_all)
 canvas.bind('<Button-3>', on_press_right)
 
