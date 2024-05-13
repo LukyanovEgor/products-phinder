@@ -170,6 +170,25 @@ def motion(event):
             return
 
 
+def delete_connected_point(tag):
+    global MASSIV_CONNECT
+    if canvas.type(tag) == 'oval':
+        del MASSIV_CONNECT[canvas.gettags(tag)[0]]
+    if canvas.type(tag) == 'line':
+        line_x1, line_y1, line_x2, line_y2 = canvas.coords(tag)
+        tag_oval = []
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'oval':
+                x1, y1, x2, y2 = canvas.coords(obj)
+                if ((x1 + x2) / 2 == line_x1 and (y1 + y2) / 2 == line_y1) or (
+                        (x1 + x2) / 2 == line_x2 and (y1 + y2) / 2 == line_y2):
+                    tag_oval.append(canvas.gettags(obj)[0])
+        MASSIV_CONNECT[tag_oval[0]].discard(tag_oval[1])
+        MASSIV_CONNECT[tag_oval[1]].discard(tag_oval[0])
+        print(MASSIV_CONNECT)
+    canvas.delete(tag)
+
+
 def on_press_left(event):
     global tag_object
     if vibor == 'стена':
@@ -232,7 +251,7 @@ def on_press_left(event):
     elif vibor == 'удалить':
         # res=event.widget.find_closest(event.x, event.y) # ctrl z
         if canvas.gettags(canvas.find_closest(event.x, event.y)[0])[0] != 'setka':
-            canvas.delete(event.widget.find_withtag("current"))
+            delete_connected_point(event.widget.find_withtag("current"))
     elif vibor == 'перемещение':
         global last_x, last_y, moving_status
         last_x = event.x
@@ -250,11 +269,11 @@ def on_press_right(event):
     if information_menu_status:
         if (item_type != "line" or canvas.gettags(item)[0] != "setka") and len(canvas.gettags(item)) > 0:
             m.add_command(label=f'переместить')
-            m.add_command(label=f'удалить')
+            m.add_command(label=f'удалить', command=lambda: delete_connected_point(item))
             m.add_separator()
             m.add_command(label=f'индекс элемента={canvas.gettags(item)[0]}')
             m.add_command(label=f'координаты элемента={canvas.coords(item)}')
-            if item_type == "oval":
+            if item_type == "oval" and canvas.gettags(item)[0] != "metka":
                 m.add_command(label=f'связан с={MASSIV_CONNECT[canvas.gettags(item)[0]]}')
 
         else:
