@@ -173,6 +173,15 @@ def motion(event):
 def delete_connected_point(tag):
     global MASSIV_CONNECT
     if canvas.type(tag) == 'oval':
+        oval_x1, oval_y1, oval_x2, oval_y2 = canvas.coords(tag)
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'line' and canvas.gettags(obj)[0] != 'setka':
+                x1, y1, x2, y2 = canvas.coords(obj)
+                if ((oval_x1 + oval_x2) / 2 == x1 and (oval_y1 + oval_y2) / 2 == y1) or (
+                        (oval_x1 + oval_x2) / 2 == x2 and (oval_y1 + oval_y2) / 2 == y2):
+                    canvas.delete(obj)
+        for value in MASSIV_CONNECT[canvas.gettags(tag)[0]]:
+            MASSIV_CONNECT[value].discard(canvas.gettags(tag)[0])
         del MASSIV_CONNECT[canvas.gettags(tag)[0]]
     if canvas.type(tag) == 'line':
         line_x1, line_y1, line_x2, line_y2 = canvas.coords(tag)
@@ -185,7 +194,7 @@ def delete_connected_point(tag):
                     tag_oval.append(canvas.gettags(obj)[0])
         MASSIV_CONNECT[tag_oval[0]].discard(tag_oval[1])
         MASSIV_CONNECT[tag_oval[1]].discard(tag_oval[0])
-        print(MASSIV_CONNECT)
+    print(MASSIV_CONNECT)
     canvas.delete(tag)
 
 
@@ -371,19 +380,22 @@ def loading_connect_dots(progress_bar):
             mas_coord = canvas.coords(obj)
             mas.append([canvas.gettags(obj)[0], (mas_coord[0] + mas_coord[2]) // 2, (mas_coord[1] + mas_coord[3]) // 2])
     canvas.delete('setka')
-
+    do_vibor('стрелка')
     for x in range(len(mas) - 1):
         progress_bar['value'] = x / len(mas) * 100
         root.update()
-        for y in range(len(mas)):
+        for y in range(x + 1, len(mas)):
             canvas.tag_lower(canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2], tags='line', fill='blue'))
             x1, y1, x2, y2 = canvas.coords('line')
             massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
             if not ('rectangle' in massiv):
+                global MASSIV_CONNECT
                 canvas.delete('line')
                 canvas.tag_lower(
                     canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
                                        tags=str(tag_object), width=3, fill='blue'))
+                MASSIV_CONNECT[mas[x][0]].add(mas[y][0])
+                MASSIV_CONNECT[mas[y][0]].add(mas[x][0])
                 tag_object += 1
     progress_bar['value'] = 100
     draw_setka()
