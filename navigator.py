@@ -150,8 +150,14 @@ def motion(event):
         if x_polka != -1 and y_polka != -1:
             draw_polka(event.x, event.y, 'polka', "#E5E4E2", '#FF8400')
     elif vibor == 'путь':
+        global x_put, y_put
         if x_put != -1 and y_put != -1:
             canvas.delete('line')
+            for obj in canvas.find_all():
+                if canvas.gettags(obj)[0] == start_coordinat_tag:
+                    x1, y1, x2, y2 = canvas.coords(obj)
+                    x_put = (x1 + x2) // 2
+                    y_put = (y1 + y2) // 2
             if event.x < x_put and event.y < y_put:
                 canvas.create_line(x_put, y_put, event.x + 2, event.y - 2, tags='line')
             else:
@@ -215,39 +221,36 @@ def on_press_left(event):
         global x_put, y_put
         item = event.widget.find_withtag("current")
         item_type = canvas.type(item)
-        if SIZE_GRID > 1:
-            if item_type == "oval":
-                global MASSIV_CONNECT, start_coordinat_tag
-                if x_put == -1 and y_put == -1:
-                    start_coordinat_tag = canvas.gettags(item)[0]
+        if item_type == "oval":
+            global MASSIV_CONNECT, start_coordinat_tag
+            if x_put == -1 and y_put == -1:
+                start_coordinat_tag = canvas.gettags(item)[0]
+                massiv_coordinat = canvas.coords(item)
+                x_put = (massiv_coordinat[0] + massiv_coordinat[2]) // 2
+                y_put = (massiv_coordinat[1] + massiv_coordinat[3]) // 2
+                root.bind('<Motion>', motion)
+                canvas.gettags(item)
+            else:
+                x1, y1, x2, y2 = canvas.coords('line')
+                massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
+                if not ('rectangle' in massiv) and start_coordinat_tag != canvas.gettags(item)[0]:
+                    canvas.delete('line')
+                    # canvas.itemconfig(event.widget.find_withtag("current"), fill="blue")
                     massiv_coordinat = canvas.coords(item)
-                    x_put = (massiv_coordinat[0] + massiv_coordinat[2]) // 2
-                    y_put = (massiv_coordinat[1] + massiv_coordinat[3]) // 2
-                    root.bind('<Motion>', motion)
-                    canvas.gettags(item)
-                else:
-                    x1, y1, x2, y2 = canvas.coords('line')
-                    massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
-                    if not ('rectangle' in massiv):
-                        canvas.delete('line')
-                        # canvas.itemconfig(event.widget.find_withtag("current"), fill="blue")
-                        massiv_coordinat = canvas.coords(item)
-                        canvas.tag_lower(
-                            canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) // 2,
-                                               (massiv_coordinat[1] + massiv_coordinat[3]) // 2,
-                                               tags=str(tag_object), width=3, fill='blue'))
-                        draw_setka()
-                        canvas.itemconfig(event.widget.find_withtag("current"))
-                        MASSIV_CONNECT[start_coordinat_tag].add(canvas.gettags(item)[0])
-                        MASSIV_CONNECT[canvas.gettags(item)[0]].add(start_coordinat_tag)
-                        print(MASSIV_CONNECT)
+                    canvas.tag_lower(
+                        canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) / 2,
+                                           (massiv_coordinat[1] + massiv_coordinat[3]) / 2,
+                                           tags=str(tag_object), width=3, fill='blue'))
+                    draw_setka()
+                    canvas.itemconfig(event.widget.find_withtag("current"))
+                    MASSIV_CONNECT[start_coordinat_tag].add(canvas.gettags(item)[0])
+                    MASSIV_CONNECT[canvas.gettags(item)[0]].add(start_coordinat_tag)
+                    print(MASSIV_CONNECT)
 
-                        tag_object += 1
-                        x_put, y_put = -1, -1
-                    else:
-                        print('линия находится слишком близко к стене')
-        else:
-            print('слишком маленький масштаб')
+                    tag_object += 1
+                    x_put, y_put = -1, -1
+                else:
+                    print('линия находится слишком близко к стене')
     elif vibor == 'полка':
         global x_polka, y_polka
         if x_polka == -1 and y_polka == -1:
@@ -306,10 +309,6 @@ def scale_all(event):
         if x_stena != -1 and y_stena != -1:
             x_stena = x_stena * x_scale
             y_stena = y_stena * y_scale
-        global x_put, y_put
-        if x_put != -1 and y_put != -1:
-            x_put = x_put * x_scale
-            y_put = y_put * y_scale
         global x_polka, y_polka
         if x_polka != -1 and y_polka != -1:
             x_polka = x_polka * x_scale
