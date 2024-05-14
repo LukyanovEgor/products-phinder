@@ -63,7 +63,7 @@ def draw_setka():
 
 
 def draw_polka(x, y, tag, color_rect, color_circle):
-    global tag_object
+    global tag_object, MASSIV_CONNECT
     canvas.delete('polka')
     x_left = min(x_polka, (x // SIZE_GRID) * SIZE_GRID)
     x_right = max(x_polka, (x // SIZE_GRID) * SIZE_GRID)
@@ -75,6 +75,7 @@ def draw_polka(x, y, tag, color_rect, color_circle):
                             tags=tag)
     if tag != 'polka':
         tag_object += 1
+        tag = int(tag) + 1
 
     len_x = abs(x_right - x_left)
     t_x = max(int(len_x // (otstup * 10)), 1)
@@ -86,7 +87,10 @@ def draw_polka(x, y, tag, color_rect, color_circle):
                            fill=color_circle,
                            tags=tag)
         if tag != 'polka':
+            MASSIV_CONNECT[str(tag_object)] = set()
+            tag += 1
             tag_object += 1
+
         canvas.create_oval(x_left + (i * (len_x // (t_x + 1))) + otstup / 2,
                            y_up,
                            x_left + (i * (len_x // (t_x + 1))) - otstup / 2,
@@ -94,6 +98,8 @@ def draw_polka(x, y, tag, color_rect, color_circle):
                            fill=color_circle,
                            tags=tag)
         if tag != 'polka':
+            MASSIV_CONNECT[str(tag_object)] = set()
+            tag += 1
             tag_object += 1
 
     len_y = abs(y_down - y_up)
@@ -105,6 +111,8 @@ def draw_polka(x, y, tag, color_rect, color_circle):
                            y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
                            fill=color_circle, tags=tag)
         if tag != 'polka':
+            MASSIV_CONNECT[str(tag_object)] = set()
+            tag += 1
             tag_object += 1
         canvas.create_oval(x_right,
                            y_up + (i * (len_y // (t_y + 1))) - otstup / 2,
@@ -112,34 +120,45 @@ def draw_polka(x, y, tag, color_rect, color_circle):
                            y_up + (i * (len_y // (t_y + 1))) + otstup / 2,
                            fill=color_circle, tags=tag)
         if tag != 'polka':
+            MASSIV_CONNECT[str(tag_object)] = set()
             tag_object += 1
+            tag += 1
 
     canvas.create_oval(x_left, y_up,
                        x_left - 2 * otstup / 2,
                        y_up - 2 * otstup / 2, fill=color_circle,
                        tags=tag)
     if tag != 'polka':
+        MASSIV_CONNECT[str(tag_object)] = set()
         tag_object += 1
+        tag += 1
     canvas.create_oval(x_left, y_down,
                        x_left - 2 * otstup / 2,
                        y_down + 2 * otstup / 2,
                        fill=color_circle,
                        tags=tag)
     if tag != 'polka':
+        MASSIV_CONNECT[str(tag_object)] = set()
         tag_object += 1
+        tag += 1
     canvas.create_oval(x_right, y_up,
                        x_right + 2 * otstup / 2,
                        y_up - 2 * otstup / 2, fill=color_circle,
                        tags=tag)
     if tag != 'polka':
+        MASSIV_CONNECT[str(tag_object)] = set()
         tag_object += 1
+        tag += 1
     canvas.create_oval(x_right, y_down,
                        x_right + 2 * otstup / 2,
                        y_down + 2 * otstup / 2,
                        fill=color_circle, tags=tag)
 
     if tag != 'polka':
+        MASSIV_CONNECT[str(tag_object)] = set()
         tag_object += 1
+        tag += 1
+    print(MASSIV_CONNECT)
 
 
 def motion(event):
@@ -186,6 +205,7 @@ def delete_connected_point(tag):
                 if ((oval_x1 + oval_x2) / 2 == x1 and (oval_y1 + oval_y2) / 2 == y1) or (
                         (oval_x1 + oval_x2) / 2 == x2 and (oval_y1 + oval_y2) / 2 == y2):
                     canvas.delete(obj)
+        print(canvas.gettags(tag)[0])
         for value in MASSIV_CONNECT[canvas.gettags(tag)[0]]:
             MASSIV_CONNECT[value].discard(canvas.gettags(tag)[0])
         del MASSIV_CONNECT[canvas.gettags(tag)[0]]
