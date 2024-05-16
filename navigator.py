@@ -356,9 +356,12 @@ def save_objects():
             file.write(f'{i} {" ".join(MASSIV_CONNECT[i])}\n')
 
 
-def load_objects():
+def load_objects(path=''):
     global tag_object, SIZE_GRID, MASSIV_CONNECT
-    file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
+    if path == '':
+        file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
+    else:
+        file_path = path
     with open(file_path, 'r') as file:
         SIZE_GRID = int(file.readline().replace('\n', ''))
         canvas.delete('all')
@@ -519,32 +522,35 @@ RADIUS = _SIZE_SCALE
 SIZE_GRID = _SIZE_SCALE
 
 MASSIV_CONNECT = {}
+CONFIGURATION = {
+    'file_open': "C:/Users/Пасечниковы/Desktop/new_format.txt"
+}
 
-image_strelka = ImageTk.PhotoImage(image=Image.open("стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
+image_strelka = ImageTk.PhotoImage(image=Image.open("image_navigator/стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_strelka = tk.Button(root, image=image_strelka, command=lambda: do_vibor('стрелка'))
 button_strelka.place(x=10, y=10)
 
-image_metka = ImageTk.PhotoImage(image=Image.open("метка.png").resize((SIZE, SIZE), Image.LANCZOS))
+image_metka = ImageTk.PhotoImage(image=Image.open("image_navigator/метка.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_metka = tk.Button(root, image=image_metka, command=lambda: do_vibor('метка'))
 button_metka.place(x=10, y=100)
 
-image_put = ImageTk.PhotoImage(image=Image.open("путь.png").resize((SIZE, SIZE), Image.LANCZOS))
+image_put = ImageTk.PhotoImage(image=Image.open("image_navigator/путь.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_put = tk.Button(root, image=image_put, command=lambda: do_vibor('путь'))
 button_put.place(x=10, y=190)
 
-image_stena = ImageTk.PhotoImage(image=Image.open("стена.jpg").resize((SIZE, SIZE), Image.LANCZOS))
+image_stena = ImageTk.PhotoImage(image=Image.open("image_navigator/стена.jpg").resize((SIZE, SIZE), Image.LANCZOS))
 button_stena = tk.Button(root, image=image_stena, command=lambda: do_vibor('стена'))
 button_stena.place(x=10, y=280)
 
-image_polka = ImageTk.PhotoImage(image=Image.open("полка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
+image_polka = ImageTk.PhotoImage(image=Image.open("image_navigator/полка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
 button_polka = tk.Button(root, image=image_polka, command=lambda: do_vibor('полка'))
 button_polka.place(x=10, y=370)
 
-image_move = ImageTk.PhotoImage(image=Image.open("перемещение.png").resize((SIZE, SIZE), Image.LANCZOS))
+image_move = ImageTk.PhotoImage(image=Image.open("image_navigator/перемещение.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_move = tk.Button(root, image=image_move, command=lambda: do_vibor('перемещение'))
 button_move.place(x=10, y=460)
 
-image_delete = ImageTk.PhotoImage(image=Image.open("удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
+image_delete = ImageTk.PhotoImage(image=Image.open("image_navigator/удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
 button_delete = tk.Button(root, image=image_delete, command=lambda: do_vibor('удалить'))
 button_delete.place(x=10, y=550)
 
@@ -578,7 +584,7 @@ tool_menu.add_command(label="Путь", command=lambda: do_vibor('путь'))
 tool_menu.add_command(label="Текст")
 tool_menu.add_command(label="Линейка")
 tool_menu.add_separator()
-tool_menu.add_command(label="Перемещение", command=lambda: do_vibor('путь'))
+tool_menu.add_command(label="Перемещение", command=lambda: do_vibor('перемещение'))
 tool_menu.add_command(label="Масштабирование")
 menu.add_cascade(label="Инструменты", menu=tool_menu)
 
@@ -593,7 +599,7 @@ width = 650
 height = 600
 canvas = tk.Canvas(bg="white", width=width, height=height)
 canvas.place(x=10 + SIZE + 10, y=10)
-
+load_objects(CONFIGURATION['file_open'])
 draw_setka()
 
 canvas.bind('<Button-1>', on_press_left)
