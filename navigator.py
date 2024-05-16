@@ -432,6 +432,70 @@ def connect_dots():
     progress.destroy()
 
 
+def bd_tovara():
+    reset(tag_object_flag=False)
+
+    def delete_row():
+        selected_item = tree.selection()
+        for i in selected_item:
+            tree.delete(i)
+
+    def add_row():
+        id_product = entry_id.get()
+        shelf_number = entry_shelf.get()
+        shelf = entry_shelf_type.get()
+        date = entry_date.get()
+
+        tree.insert("", tk.END, values=(id_product, shelf_number, shelf, date))
+
+    window_bd_tovar = tk.Tk()
+    window_bd_tovar.title("БД товара")
+
+    tree = ttk.Treeview(window_bd_tovar, columns=("ID Product", "Shelf Number", "Shelf", "Date"), show="headings")
+    tree.heading("ID Product", text="ID")
+    tree.heading("Shelf Number", text="Номер метки")
+    tree.heading("Shelf", text="Полка")
+    tree.heading("Date", text="Дата")
+    tree.pack()
+
+    file = open('bd_tovar.txt')
+    [tree.insert("", tk.END, values=(i.split())) for i in file]
+    print('l')
+    btn_frame = tk.Frame(window_bd_tovar)
+    btn_frame.pack()
+
+    button_add = tk.Button(btn_frame, text="Добавить строчку", command=add_row)
+    button_add.pack(side=tk.LEFT)
+
+    button_del = tk.Button(btn_frame, text="Удалить строчку", command=delete_row)
+    button_del.pack(side=tk.LEFT)
+
+    entry_frame = tk.Frame(window_bd_tovar)
+    entry_frame.pack()
+
+    entry_id = tk.Entry(entry_frame, width=10)
+    entry_id.pack(side=tk.LEFT)
+    label_id = tk.Label(entry_frame, text="ID")
+    label_id.pack(side=tk.LEFT)
+
+    entry_shelf = tk.Entry(entry_frame, width=10)
+    entry_shelf.pack(side=tk.LEFT)
+    label_shelf = tk.Label(entry_frame, text="Номер метки")
+    label_shelf.pack(side=tk.LEFT)
+
+    entry_shelf_type = tk.Entry(entry_frame, width=10)
+    entry_shelf_type.pack(side=tk.LEFT)
+    label_shelf_type = tk.Label(entry_frame, text="Полка")
+    label_shelf_type.pack(side=tk.LEFT)
+
+    entry_date = tk.Entry(entry_frame, width=10)
+    entry_date.pack(side=tk.LEFT)
+    label_date = tk.Label(entry_frame, text="Дата")
+    label_date.pack(side=tk.LEFT)
+
+    window_bd_tovar.mainloop()
+
+
 root = tk.Tk()
 root.title('навигатор')
 root.geometry("800x650")
@@ -494,10 +558,10 @@ file_menu.add_command(label="Выйти", command=lambda: exit())
 menu.add_cascade(label="Файл", menu=file_menu)
 
 settings_menu = tk.Menu(menu, tearoff=0)
-settings_menu.add_command(label="Подключение БД")
+settings_menu.add_command(label="Подключение БД товара", command=bd_tovara)
 settings_menu.add_command(label="Подключение телеграм бота")
 settings_menu.add_command(label="Соединение всех меток", command=connect_dots)
-settings_menu.add_command(label="Поиск")
+settings_menu.add_command(label="Поиск товара")
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
@@ -507,14 +571,14 @@ vid_menu.add_command(label="Отображение текста")
 menu.add_cascade(label="Вид", menu=vid_menu)
 
 tool_menu = tk.Menu(menu, tearoff=0)
-tool_menu.add_command(label="Стена")
-tool_menu.add_command(label="Полка")
-tool_menu.add_command(label="Метка")
-tool_menu.add_command(label="Путь")
+tool_menu.add_command(label="Стена", command=lambda: do_vibor('стена'))
+tool_menu.add_command(label="Полка", command=lambda: do_vibor('полка'))
+tool_menu.add_command(label="Метка", command=lambda: do_vibor('метка'))
+tool_menu.add_command(label="Путь", command=lambda: do_vibor('путь'))
 tool_menu.add_command(label="Текст")
 tool_menu.add_command(label="Линейка")
 tool_menu.add_separator()
-tool_menu.add_command(label="Перемещение")
+tool_menu.add_command(label="Перемещение", command=lambda: do_vibor('путь'))
 tool_menu.add_command(label="Масштабирование")
 menu.add_cascade(label="Инструменты", menu=tool_menu)
 
