@@ -545,6 +545,45 @@ def bd_tovara():
     window_bd_tovar.mainloop()
 
 
+def find_tovar():
+    def remove_selected_items():
+        selected_indices = listbox.curselection()
+        for index in selected_indices:
+            listbox.delete(index)
+
+    def add_index():
+        index = index_entry.get()
+        if index:
+            listbox.insert(tk.END, index)
+            index_entry.delete(0, tk.END)
+
+    def draw_path():
+        print('нужно сделать отрисовку пути на карте')
+
+    window_find_tovar = tk.Tk()
+    window_find_tovar.title("Поиск товара")
+    window_find_tovar.geometry("500x300")
+
+    index_label = tk.Label(window_find_tovar, text="Введите код товара")
+    index_label.place(x=10, y=10)
+
+    index_entry = tk.Entry(window_find_tovar)
+    index_entry.place(x=10, y=50)
+
+    add_button = tk.Button(window_find_tovar, text="Добавить", command=add_index)
+    add_button.place(x=10, y=100)
+    remove_button = tk.Button(window_find_tovar, text="Удалить", command=remove_selected_items)
+    remove_button.place(x=10, y=130)
+
+    find_button = tk.Button(window_find_tovar, text="Построить маршрут", command=draw_path)
+    find_button.place(x=10, y=250)
+
+    listbox = tk.Listbox(window_find_tovar, width=40, height=15)
+    listbox.place(x=200, y=10)
+
+    window_find_tovar.mainloop()
+
+
 root = tk.Tk()
 root.title('навигатор')
 root.geometry("800x650")
@@ -615,7 +654,7 @@ settings_menu = tk.Menu(menu, tearoff=0)
 settings_menu.add_command(label="Подключение БД товара", command=bd_tovara)
 settings_menu.add_command(label="Подключение телеграм бота")
 settings_menu.add_command(label="Соединение всех меток", command=connect_dots)
-settings_menu.add_command(label="Поиск товара")
+settings_menu.add_command(label="Поиск товара", command=find_tovar)
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
