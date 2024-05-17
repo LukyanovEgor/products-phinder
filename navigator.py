@@ -5,7 +5,7 @@ from tkinter import ttk
 from math import sqrt
 
 
-def reset(tag_object_flag=True):  # сброс всех переменных
+def reset(tag_object_flag=True, clear_canvas=False):  # сброс всех переменных
     global tag_object, vibor, moving_status, tag_object
     global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y
     x_stena, y_stena = -1, -1
@@ -15,10 +15,19 @@ def reset(tag_object_flag=True):  # сброс всех переменных
     moving_status = False
     if tag_object_flag:
         tag_object = 0
+    if clear_canvas:
+        global MASSIV_CONNECT
+        canvas.delete('all')
+        MASSIV_CONNECT = {}
+        tag_object = 0
+        draw_setka()
+
     canvas.delete('metka')
     canvas.delete('polka')
     canvas.delete('line')
     canvas.delete('stena')
+    canvas.delete('lineyka')
+    canvas.delete('lineyka111')
 
 
 def do_vibor(stroka):
@@ -598,6 +607,7 @@ file_menu = tk.Menu(menu, tearoff=0)
 file_menu.add_command(label="Сохранить как", command=save_objects)
 file_menu.add_command(label="Загрузить", command=load_objects)
 file_menu.add_separator()
+file_menu.add_command(label="Очистить экран", command=lambda: reset(clear_canvas=True))
 file_menu.add_command(label="Выйти", command=lambda: exit())
 menu.add_cascade(label="Файл", menu=file_menu)
 
