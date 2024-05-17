@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import tkinter.filedialog as fd
 from tkinter import ttk
+from math import sqrt
 
 
 def reset(tag_object_flag=True):  # сброс всех переменных
@@ -161,6 +162,26 @@ def draw_polka(x, y, tag, color_rect, color_circle):
     print(MASSIV_CONNECT)
 
 
+def draw_lineyka(x, y):
+    global x_lineyka, y_lineyka
+    canvas.delete('lineyka')
+    for obj in canvas.find_all():
+        if canvas.gettags(obj)[0] == 'lineyka111':
+            x1, y1, x2, y2 = canvas.coords(obj)
+            x_lineyka = (x1 + x2) // 2
+            y_lineyka = (y1 + y2) // 2
+    canvas.create_line(x_lineyka, y_lineyka, x, y, tags='lineyka')
+    x_1 = max(x_lineyka, x) - min(x_lineyka, x)
+    y_1 = max(y_lineyka, y) - min(y_lineyka, y)
+
+    text_item = canvas.create_text((x_lineyka + x) // 2, (y_lineyka + y) // 2 - 6,
+                                   text=f'{round(sqrt(x_1 ** 2 + y_1 ** 2) / SIZE_GRID, 2)} м', font='Verdana 12',
+                                   fill="black",
+                                   tags='lineyka')
+    rect_item = canvas.create_rectangle(canvas.bbox(text_item), outline="red", fill="white", tags='lineyka')
+    canvas.tag_raise(text_item, rect_item)
+
+
 def motion(event):
     if vibor == 'стена':
         if x_stena != -1 and y_stena != -1:
@@ -193,6 +214,10 @@ def motion(event):
             last_y = event.y
         else:
             return
+    elif vibor == 'линейка':
+        global x_lineyka, y_lineyka
+        if x_lineyka != -1 and y_lineyka != -1:
+            draw_lineyka(event.x, event.y)
 
 
 def delete_connected_point(tag):
@@ -249,7 +274,6 @@ def on_press_left(event):
                 x_put = (massiv_coordinat[0] + massiv_coordinat[2]) // 2
                 y_put = (massiv_coordinat[1] + massiv_coordinat[3]) // 2
                 root.bind('<Motion>', motion)
-                canvas.gettags(item)
             else:
                 x1, y1, x2, y2 = canvas.coords('line')
                 massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
@@ -290,6 +314,17 @@ def on_press_left(event):
         last_y = event.y
         moving_status = not moving_status
         canvas.bind('<Motion>', motion)
+    elif vibor == 'линейка':
+        global x_lineyka, y_lineyka
+        if x_lineyka == -1 and y_lineyka == -1:
+            x_lineyka = event.x
+            y_lineyka = event.y
+            canvas.create_oval(event.x, event.y, event.x + 1, event.y + 1, fill='black', tags='lineyka111')
+            root.bind('<Motion>', motion)
+        else:
+            canvas.delete('lineyka')
+            canvas.delete('lineyka111')
+            x_lineyka, y_lineyka = -1, -1
 
 
 def on_press_right(event):
@@ -336,6 +371,8 @@ def scale_all(event):
         canvas.scale('all', 0, 0, x_scale, y_scale)
         canvas.move('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID)
         draw_setka()
+        if x_lineyka != -1 and y_lineyka != -1:
+            draw_lineyka(event.x, event.y)
 
 
 def save_objects():
@@ -507,6 +544,7 @@ vibor = 'стрелка'  # выбор режима
 x_stena, y_stena = -1, -1
 x_put, y_put = -1, -1
 x_polka, y_polka = -1, -1
+x_lineyka, y_lineyka = -1, -1
 last_x, last_y = -1, -1
 moving_status = False
 scale_status = True
@@ -571,7 +609,7 @@ settings_menu.add_command(label="Поиск товара")
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
-vid_menu.add_command(label="Размер")
+vid_menu.add_command(label="Размер кнопок")
 vid_menu.add_checkbutton(label="Отображение сетки", onvalue=1, offvalue=0, variable=setka_show, command=draw_setka)
 vid_menu.add_command(label="Отображение текста")
 menu.add_cascade(label="Вид", menu=vid_menu)
@@ -582,14 +620,13 @@ tool_menu.add_command(label="Полка", command=lambda: do_vibor('полка')
 tool_menu.add_command(label="Метка", command=lambda: do_vibor('метка'))
 tool_menu.add_command(label="Путь", command=lambda: do_vibor('путь'))
 tool_menu.add_command(label="Текст")
-tool_menu.add_command(label="Линейка")
+tool_menu.add_command(label="Линейка", command=lambda: do_vibor('линейка'))
 tool_menu.add_separator()
 tool_menu.add_command(label="Перемещение", command=lambda: do_vibor('перемещение'))
-tool_menu.add_command(label="Масштабирование")
+tool_menu.add_command(label="Удаление", command=lambda: do_vibor('удалить'))
 menu.add_cascade(label="Инструменты", menu=tool_menu)
 
 information_menu = tk.Menu(menu, tearoff=0)
-information_menu.add_command(label="О нас")
 information_menu.add_command(label="Как пользоваться")
 menu.add_cascade(label="О приложении", menu=information_menu)
 
