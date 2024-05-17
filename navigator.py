@@ -386,6 +386,7 @@ def scale_all(event):
 
 def save_objects():
     file_path = fd.asksaveasfilename(defaultextension='.txt')
+    reset(tag_object_flag=False)
     with open(file_path, 'w') as file:
         file.write(str(int(SIZE_GRID)) + '\n')
         canvas.delete('setka')
@@ -434,51 +435,53 @@ def load_objects(path=''):
             MASSIV_CONNECT[ind] = set(value)
 
 
-def loading_connect_dots(progress_bar):
-    for widget in root.winfo_children():
-        if widget.winfo_class() == 'Button':
-            widget["state"] = "disabled"
-    global tag_object, scale_status
-    scale_status = False
-
-    reset(tag_object_flag=False)
-    mas = []
-    for obj in canvas.find_all():
-        if canvas.type(obj) == 'oval' and canvas.gettags(obj)[0] != 'metka':
-            mas_coord = canvas.coords(obj)
-            mas.append([canvas.gettags(obj)[0], (mas_coord[0] + mas_coord[2]) // 2, (mas_coord[1] + mas_coord[3]) // 2])
-    canvas.delete('setka')
-    do_vibor('стрелка')
-    for x in range(len(mas) - 1):
-        progress_bar['value'] = x / len(mas) * 100
-        root.update()
-        for y in range(x + 1, len(mas)):
-            canvas.tag_lower(canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2], tags='line', fill='blue'))
-            x1, y1, x2, y2 = canvas.coords('line')
-            massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
-            if not ('rectangle' in massiv):
-                global MASSIV_CONNECT
-                canvas.delete('line')
-                canvas.tag_lower(
-                    canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
-                                       tags=str(tag_object), width=3, fill='blue'))
-                MASSIV_CONNECT[mas[x][0]].add(mas[y][0])
-                MASSIV_CONNECT[mas[y][0]].add(mas[x][0])
-                tag_object += 1
-    progress_bar['value'] = 100
-    draw_setka()
-    for widget in root.winfo_children():
-        if widget.winfo_class() == 'Button':
-            widget["state"] = "normal"
-    scale_status = True
-
-
 def connect_dots():
+    def loading_connect_dots(progress_bar):
+        for widget in root.winfo_children():
+            if widget.winfo_class() == 'Button':
+                widget["state"] = "disabled"
+        global tag_object, scale_status
+        scale_status = False
+
+        reset(tag_object_flag=False)
+        mas = []
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'oval' and canvas.gettags(obj)[0] != 'metka':
+                mas_coord = canvas.coords(obj)
+                mas.append(
+                    [canvas.gettags(obj)[0], (mas_coord[0] + mas_coord[2]) // 2, (mas_coord[1] + mas_coord[3]) // 2])
+        canvas.delete('setka')
+        do_vibor('стрелка')
+        for x in range(len(mas) - 1):
+            progress_bar['value'] = x / len(mas) * 100
+            root.update()
+            for y in range(x + 1, len(mas)):
+                canvas.tag_lower(
+                    canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2], tags='line', fill='blue'))
+                x1, y1, x2, y2 = canvas.coords('line')
+                massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
+                if not ('rectangle' in massiv):
+                    global MASSIV_CONNECT
+                    canvas.delete('line')
+                    canvas.tag_lower(
+                        canvas.create_line(mas[x][1], mas[x][2], mas[y][1], mas[y][2],
+                                           tags=str(tag_object), width=3, fill='blue'))
+                    MASSIV_CONNECT[mas[x][0]].add(mas[y][0])
+                    MASSIV_CONNECT[mas[y][0]].add(mas[x][0])
+                    tag_object += 1
+        progress_bar['value'] = 100
+        draw_setka()
+        for widget in root.winfo_children():
+            if widget.winfo_class() == 'Button':
+                widget["state"] = "normal"
+        scale_status = True
+
     progress = ttk.Progressbar(root, length=300, mode='determinate')
     progress.place(x=width - 200, y=height + 20)
     progress['maximum'] = 100
     loading_connect_dots(progress)
     progress.destroy()
+    canvas.delete('line')
 
 
 def bd_tovara():
