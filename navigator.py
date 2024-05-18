@@ -500,8 +500,9 @@ def bd_tovara():
 
         tree.insert("", tk.END, values=(id_product, shelf_number, shelf, date))
 
-    window_bd_tovar = tk.Tk()
+    window_bd_tovar = tk.Toplevel(root)
     window_bd_tovar.title("БД товара")
+    window_bd_tovar.grab_set()
 
     tree = ttk.Treeview(window_bd_tovar, columns=("ID Product", "Shelf Number", "Shelf", "Date"), show="headings")
     tree.heading("ID Product", text="ID")
@@ -546,6 +547,7 @@ def bd_tovara():
     label_date.pack(side=tk.LEFT)
 
     window_bd_tovar.mainloop()
+    window_bd_tovar.wait_window()
 
 
 def find_tovar():
@@ -563,9 +565,10 @@ def find_tovar():
     def draw_path():
         print('нужно сделать отрисовку пути на карте')
 
-    window_find_tovar = tk.Tk()
+    window_find_tovar = tk.Toplevel(root)
     window_find_tovar.title("Поиск товара")
     window_find_tovar.geometry("500x300")
+    window_find_tovar.grab_set()
 
     index_label = tk.Label(window_find_tovar, text="Введите код товара")
     index_label.place(x=10, y=10)
@@ -585,6 +588,7 @@ def find_tovar():
     listbox.place(x=200, y=10)
 
     window_find_tovar.mainloop()
+    window_find_tovar.wait_window()
 
 
 root = tk.Tk()
@@ -661,7 +665,6 @@ settings_menu.add_command(label="Поиск товара", command=find_tovar)
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
-vid_menu.add_command(label="Размер кнопок")
 vid_menu.add_checkbutton(label="Отображение сетки", onvalue=1, offvalue=0, variable=setka_show, command=draw_setka)
 vid_menu.add_command(label="Отображение текста")
 menu.add_cascade(label="Вид", menu=vid_menu)
