@@ -500,6 +500,23 @@ def bd_tovara():
 
         tree.insert("", tk.END, values=(id_product, shelf_number, shelf, date))
 
+    def browse_file(path=''):
+        if path == '':
+            file_path = tk.filedialog.askopenfilename()
+        else:
+            file_path = path
+        with open(file_path) as file:
+            CONFIGURATION['bd_tovar'] = file_path
+            tree.delete(*tree.get_children())
+            for line in file:
+                data = line.strip().split()
+                tree.insert("", tk.END, values=data)
+
+    def save_file():
+        file = open(CONFIGURATION['bd_tovar'], 'w')
+        for item in tree.get_children():
+            file.write(' '.join(list(map(str, tree.item(item)["values"]))) + '\n')
+
     window_bd_tovar = tk.Toplevel(root)
     window_bd_tovar.title("БД товара")
     window_bd_tovar.grab_set()
@@ -511,9 +528,6 @@ def bd_tovara():
     tree.heading("Date", text="Дата")
     tree.pack()
 
-    file = open('bd_tovar.txt')
-    [tree.insert("", tk.END, values=(i.split())) for i in file]
-    print('l')
     btn_frame = tk.Frame(window_bd_tovar)
     btn_frame.pack()
 
@@ -522,6 +536,12 @@ def bd_tovara():
 
     button_del = tk.Button(btn_frame, text="Удалить строчку", command=delete_row)
     button_del.pack(side=tk.LEFT)
+
+    button_browse = tk.Button(btn_frame, text="Выбрать файл", command=browse_file)
+    button_browse.pack(side=tk.LEFT)
+
+    button_browse = tk.Button(btn_frame, text="Сохранить файл", command=save_file)
+    button_browse.pack(side=tk.LEFT)
 
     entry_frame = tk.Frame(window_bd_tovar)
     entry_frame.pack()
@@ -545,6 +565,8 @@ def bd_tovara():
     entry_date.pack(side=tk.LEFT)
     label_date = tk.Label(entry_frame, text="Дата")
     label_date.pack(side=tk.LEFT)
+
+    browse_file(CONFIGURATION['bd_tovar'])
 
     window_bd_tovar.mainloop()
     window_bd_tovar.wait_window()
@@ -616,7 +638,8 @@ SIZE_GRID = _SIZE_SCALE
 
 MASSIV_CONNECT = {}
 CONFIGURATION = {
-    'file_open': "C:/Users/Пасечниковы/Desktop/new_format.txt"
+    'file_open': "C:/Users/Пасечниковы/Desktop/new_format.txt",
+    'bd_tovar': "C:/Users/Пасечниковы/Desktop/сборщик/memory — копия.txt"
 }
 
 image_strelka = ImageTk.PhotoImage(image=Image.open("image_navigator/стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
