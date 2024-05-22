@@ -673,8 +673,9 @@ def telegram_bot():
     telegram_bot_window.wait_window()
 
 
-def copy_canvas(source_canvas, target_canvas, type_copy):
-    target_canvas.delete("all")  # Очистить целевой canvas
+def copy_canvas(source_canvas, target_canvas, type_copy=''):
+    if source_canvas != target_canvas:
+        target_canvas.delete("all")
     reset(source_canvas)
     for item in source_canvas.find_all():
         coords = source_canvas.coords(item)
@@ -689,25 +690,32 @@ def copy_canvas(source_canvas, target_canvas, type_copy):
                 x1, y1, x2, y2 = coords
                 target_canvas.create_text((x1 + x2) / 2, y1 + SIZE_GRID // 2, text=tags, fill='black',
                                           font='Verdana 12 bold')
-        elif item_type == "line":
+        elif item_type == "line" and tags[0] != 'setka':
             if type_copy == 'поиск товара':
                 target_canvas.create_line(coords, fill='#D0D0D0', width=1, tags=tags)
             else:
-                target_canvas.create_line(coords, fill=options["fill"][-1], width=options['width'][-1], tags=tags)
-        elif item_type == "text" and type_copy != 'редактирование':
+                target_canvas.create_line(coords, fill='blue', width=3, tags=tags)
+        elif item_type == "text" and type_copy == 'заполнение бд':
             target_canvas.create_text(coords, text=options["text"][-1], fill=options["fill"][-1], tags=tags)
+    draw_setka(target_canvas)
 
 
 def on_tab_changed(event):
     selected_tab = event.widget.index("current")
     global memory_selected_tab
-    if (memory_selected_tab == 0 or memory_selected_tab == 2) and selected_tab == 1:
-        reset(canvas1)
+    if selected_tab == 0 and memory_selected_tab in (1, 2):
+        eval(f"copy_canvas(canvas{memory_selected_tab + 1}, canvas1, 'редактирование')")
+    elif selected_tab == 1 and memory_selected_tab == 0:
         copy_canvas(canvas1, canvas2, 'заполнение бд')
-    elif memory_selected_tab == 1 and selected_tab == 0:
-        copy_canvas(canvas2, canvas1, 'редактирование')
-    elif (memory_selected_tab == 0 or memory_selected_tab == 1) and selected_tab == 2:
+    elif selected_tab == 2 and memory_selected_tab == 0:
         copy_canvas(canvas1, canvas3, 'поиск товара')
+    elif selected_tab == 2 and memory_selected_tab == 1:
+        copy_canvas(canvas2, canvas3, 'поиск товара')
+        copy_canvas(canvas2, canvas1, 'редактирование')
+    elif selected_tab == 1 and memory_selected_tab == 2:
+        copy_canvas(canvas3, canvas2, 'заполнение бд')
+        copy_canvas(canvas3, canvas1, 'редактирование')
+
     memory_selected_tab = selected_tab
 
 
