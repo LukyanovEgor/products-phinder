@@ -3,6 +3,7 @@ import tkinter.filedialog as fd
 from tkinter import ttk
 from math import sqrt
 import subprocess
+from PIL import Image, ImageTk
 
 
 def reset(canvas, tag_object_flag=True, clear_canvas=False):  # сброс всех переменных
@@ -691,10 +692,10 @@ def copy_canvas(source_canvas, target_canvas, type_copy=''):
                 target_canvas.create_text((x1 + x2) / 2, y1 + SIZE_GRID // 2, text=tags, fill='black',
                                           font='Verdana 12 bold')
         elif item_type == "line" and tags[0] != 'setka':
-            if type_copy == 'поиск товара':
-                target_canvas.create_line(coords, fill='#D0D0D0', width=1, tags=tags)
-            else:
+            if type_copy == 'редактирование':
                 target_canvas.create_line(coords, fill='blue', width=3, tags=tags)
+            else:
+                target_canvas.create_line(coords, fill='#D0D0D0', width=1, tags=tags)
         elif item_type == "text" and type_copy == 'заполнение бд':
             target_canvas.create_text(coords, text=options["text"][-1], fill=options["fill"][-1], tags=tags)
     draw_setka(target_canvas)
@@ -721,7 +722,7 @@ def on_tab_changed(event):
 
 root = tk.Tk()
 root.title('навигатор')
-root.geometry("800x650")
+root.geometry("1100x650")
 
 vibor = 'стрелка'  # выбор режима
 x_stena, y_stena = -1, -1
@@ -738,16 +739,16 @@ setka_show = tk.BooleanVar()
 setka_show.set(True)
 
 _SIZE_SCALE = 8
-SIZE = 80
+SIZE = 40
 RADIUS = _SIZE_SCALE
 SIZE_GRID = _SIZE_SCALE
 memory_selected_tab = 0
 
 MASSIV_CONNECT = {}
 CONFIGURATION = {
-    'file_open': "C:/Users/Пасечниковы/Desktop/new_format.txt",
-    'bd_tovar': "C:/Users/Пасечниковы/Desktop/сборщик/memory — копия.txt",
-    'telegram_bot': "C:/Users/Пасечниковы/PycharmProjects/products-phinders/telegram.py"
+    'file_open': "new_format.txt",
+    'bd_tovar': "bd_tovar.txt",
+    'telegram_bot': "telegram.py"
 }
 
 menu = tk.Menu()
@@ -769,7 +770,7 @@ menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
 vid_menu.add_checkbutton(label="Отображение сетки", onvalue=1, offvalue=0,
-                         variable=setka_show)  # сделать удаление сетки
+                         variable=setka_show, command=lambda: draw_setka(eval(f'canvas{memory_selected_tab + 1}')))
 vid_menu.add_command(label="Отображение текста")
 menu.add_cascade(label="Вид", menu=vid_menu)
 
@@ -792,7 +793,7 @@ menu.add_cascade(label="О приложении", menu=information_menu)
 
 root.config(menu=menu)
 
-width = 750
+width = 1500
 height = 600
 notebook = ttk.Notebook(root, width=width, height=height)
 
@@ -802,12 +803,41 @@ canvas1 = tk.Canvas(page_1, bg="white", width=width, height=height)
 canvas1.pack(fill="both", expand=True)
 notebook.add(page_1, text="Редактирование")
 
+image_strelka = ImageTk.PhotoImage(image=Image.open("image_navigator/стрелка.png").resize((SIZE, SIZE), Image.LANCZOS))
+button_strelka = tk.Button(page_1, image=image_strelka, command=lambda: do_vibor('стрелка'))
+button_strelka.place(x=10, y=0)
+
+image_metka = ImageTk.PhotoImage(image=Image.open("image_navigator/метка.png").resize((SIZE, SIZE), Image.LANCZOS))
+button_metka = tk.Button(page_1, image=image_metka, command=lambda: do_vibor('метка'))
+button_metka.place(x=10, y=1*(SIZE+10)+SIZE//2)
+
+image_put = ImageTk.PhotoImage(image=Image.open("image_navigator/путь.png").resize((SIZE, SIZE), Image.LANCZOS))
+button_put = tk.Button(page_1, image=image_put, command=lambda: do_vibor('путь'))
+button_put.place(x=10, y=2*(SIZE+10)+SIZE//2)
+
+image_stena = ImageTk.PhotoImage(image=Image.open("image_navigator/стена.jpg").resize((SIZE, SIZE), Image.LANCZOS))
+button_stena = tk.Button(page_1, image=image_stena, command=lambda: do_vibor('стена'))
+button_stena.place(x=10, y=3*(SIZE+10)+SIZE//2)
+
+image_polka = ImageTk.PhotoImage(image=Image.open("image_navigator/полка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
+button_polka = tk.Button(page_1, image=image_polka, command=lambda: do_vibor('полка'))
+button_polka.place(x=10, y=4*(SIZE+10)+SIZE//2)
+
+image_move = ImageTk.PhotoImage(image=Image.open("image_navigator/перемещение.png").resize((SIZE, SIZE), Image.LANCZOS))
+button_move = tk.Button(page_1, image=image_move, command=lambda: do_vibor('перемещение'))
+button_move.place(x=10, y=5*(SIZE+10)+SIZE//2)
+
+image_delete = ImageTk.PhotoImage(image=Image.open("image_navigator/удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
+button_delete = tk.Button(page_1, image=image_delete, command=lambda: do_vibor('удалить'))
+button_delete.place(x=10, y=6*(SIZE+10)+SIZE//2)
+
 page_2 = tk.Frame(notebook)
 canvas2 = tk.Canvas(page_2, bg="white", width=width, height=height)
 canvas2.pack(fill="both", expand=True)
 notebook.add(page_2, text="Заполнение БД")
 
 page_3 = tk.Frame(notebook)
+
 canvas3 = tk.Canvas(page_3, bg="white", width=width, height=height)
 canvas3.pack(fill="both", expand=True)
 notebook.add(page_3, text="Поиск товара")
