@@ -4,16 +4,18 @@ from tkinter import ttk
 from math import sqrt
 import subprocess
 from PIL import Image, ImageTk
+import tkfontchooser
 
 
 def reset(canvas, tag_object_flag=True, clear_canvas=False):  # сброс всех переменных
     global tag_object, vibor, moving_status, tag_object
-    global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y, x_lineyka, y_lineyka
+    global x_stena, y_stena, x_put, y_put, x_polka, y_polka, last_x, last_y, x_lineyka, y_lineyka, x_text, y_text
     x_stena, y_stena = -1, -1
     x_put, y_put = -1, -1
     x_polka, y_polka = -1, -1
     last_x, last_y = -1, -1
     x_lineyka, y_lineyka = -1, -1
+    x_text, y_text = -1, -1
     moving_status = False
     if tag_object_flag:
         tag_object = 0
@@ -30,6 +32,46 @@ def reset(canvas, tag_object_flag=True, clear_canvas=False):  # сброс вс�
     canvas.delete('stena')
     canvas.delete('lineyka')
     canvas.delete('lineyka111')
+    canvas.delete('text')
+
+
+def do_vibor_text():
+    popup = tk.Toplevel(root)
+    popup.title("Ввод текста")
+    popup.grab_set()
+
+    tk.Label(popup, text="Введите ваш текст:").pack(pady=5)
+
+    entry = tk.Entry(popup)
+    entry.pack(pady=5)
+
+    def settings_text():
+        global font_settings
+        font = tkfontchooser.askfont()
+        if font:
+            font['family'] = font['family'].replace(' ', r'\ ')
+            font_str = "%(family)s %(size)i %(weight)s %(slant)s" % font
+            if font['underline']:
+                font_str += ' underline'
+            if font['overstrike']:
+                font_str += ' overstrike'
+            font_settings = font_str
+
+    def do_text():
+        user_text = entry.get()
+        if user_text:
+            global font_text
+            font_text = user_text.replace('_', " ")
+            entry.delete(0, tk.END)
+            popup.destroy()
+
+    button1 = tk.Button(popup, text="Настройки", command=settings_text)
+    button1.pack(pady=5)
+    button2 = tk.Button(popup, text="готово", command=do_text)
+    button2.pack(pady=5)
+
+    popup.mainloop()
+    popup.wait_window()
 
 
 def do_vibor(stroka):
@@ -72,6 +114,18 @@ def draw_setka(canvas):
 
         for line1 in range(0, height, int(SIZE_GRID)):
             canvas.tag_lower(canvas.create_line((0, line1), (width, line1), fill='#DCDCDC', tags='setka'))
+
+
+def hide_text(canvas):
+    if text_show.get() == 0:
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'text' and canvas.gettags(obj)[0] != 'lineyka':
+                canvas.itemconfigure(obj, state="hidden")
+                canvas.scale('all', 0, 0, 1, 1)  # чтоб буквы не оставляли след
+    else:
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'text':
+                canvas.itemconfigure(obj, state="normal")
 
 
 def draw_polka(canvas, x, y, tag, color_rect, color_circle):
@@ -193,6 +247,20 @@ def draw_lineyka(canvas, x, y):
     canvas.tag_raise(text_item, rect_item)
 
 
+def draw_text(canvas, x, y, tag):
+    global font_text
+    canvas.delete('text')
+    if text_show.get() == 0:
+        canvas.create_text(x, y, text=font_text, tags=str(tag), fill='black', font=font_settings, state="hidden")
+    else:
+        canvas.create_text(x, y, text=font_text, tags=str(tag), fill='black', font=font_settings, state="normal")
+    if tag != 'text':
+        global tag_object
+        tag_object += 1
+        font_text = ''
+    canvas.scale('all', 0, 0, 1, 1)  # чтоб буквы не оставляли след
+
+
 def motion(event, canvas):
     if vibor == 'стена':
         if x_stena != -1 and y_stena != -1:
@@ -229,6 +297,10 @@ def motion(event, canvas):
         global x_lineyka, y_lineyka
         if x_lineyka != -1 and y_lineyka != -1:
             draw_lineyka(canvas, event.x, event.y)
+    elif vibor == 'текст':
+        global x_text, y_text
+        if x_text != -1 and y_text != -1:
+            draw_text(canvas, event.x, event.y, 'text')
 
 
 def delete_connected_point(canvas, tag):
@@ -289,7 +361,6 @@ def on_press_left(event, canvas):
                 massiv = [canvas.type(i) for i in canvas.find_overlapping(x1, y1, x2, y2)]
                 if not ('rectangle' in massiv) and start_coordinat_tag != canvas.gettags(item)[0]:
                     canvas.delete('line')
-                    # canvas.itemconfig(event.widget.find_withtag("current"), fill="blue")
                     massiv_coordinat = canvas.coords(item)
                     canvas.tag_lower(
                         canvas.create_line(x_put, y_put, (massiv_coordinat[0] + massiv_coordinat[2]) / 2,
@@ -335,6 +406,16 @@ def on_press_left(event, canvas):
             canvas.delete('lineyka')
             canvas.delete('lineyka111')
             x_lineyka, y_lineyka = -1, -1
+    elif vibor == 'текст':
+        global x_text, y_text
+        if x_text == -1 and y_text == -1:
+            x_text = 0
+            y_text = 0
+            canvas1.bind('<Motion>', lambda events: motion(events, canvas1))
+            do_vibor_text()
+        else:
+            draw_text(canvas, event.x, event.y, str(tag_object))
+            x_text, y_text = -1, -1
 
 
 def on_press_right(event, canvas):
@@ -364,10 +445,10 @@ def on_press_right(event, canvas):
         m.grab_release()
 
 
-def scale_all(event, canvas):
+def scale_all(event, canvas, nap=None):  # сделать масштабирование текста
     global SIZE_GRID
-    x_scale = 2 if event.delta > 0 else 0.5
-    y_scale = 2 if event.delta > 0 else 0.5
+    x_scale = 2 if event.delta > 0 or nap else 0.5
+    y_scale = 2 if event.delta > 0 or nap else 0.5
     if 128 >= SIZE_GRID * x_scale >= 1 and scale_status:
         canvas.move('all', -(event.x // SIZE_GRID) * SIZE_GRID, -(event.y // SIZE_GRID) * SIZE_GRID)
         SIZE_GRID *= x_scale
@@ -389,21 +470,29 @@ def scale_all(event, canvas):
 def save_objects():
     file_path = fd.asksaveasfilename(defaultextension='.txt')
     reset(canvas1, tag_object_flag=False)
-    with open(file_path, 'w') as file:
-        file.write(str(int(SIZE_GRID)) + '\n')
-        canvas1.delete('setka')
-        mas = canvas1.find_all()
-        file.write(str(len(mas)) + '\n')
-        for obj in mas:
-            if canvas1.gettags(obj)[0] != 'setka':
-                file.write(
-                    f"{canvas1.type(obj)} {canvas1.gettags(obj)[0]} {canvas1.itemcget(obj, 'fill')} "
-                    f"{canvas1.coords(obj)}\n"
-                )
-        draw_setka(canvas1)
-        file.write(str(len(MASSIV_CONNECT)) + '\n')
-        for i in MASSIV_CONNECT:
-            file.write(f'{i} {" ".join(MASSIV_CONNECT[i])}\n')
+    if file_path:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(str(int(SIZE_GRID)) + '\n')
+            canvas1.delete('setka')
+            mas = canvas1.find_all()
+            file.write(str(len(mas)) + '\n')
+            for obj in mas:
+                if canvas1.gettags(obj)[0] != 'setka':
+                    if canvas1.type(obj) != 'text':
+                        file.write(
+                            f"{canvas1.type(obj)} {canvas1.gettags(obj)[0]} {canvas1.itemcget(obj, 'fill')} "
+                            f"{canvas1.coords(obj)}\n"
+                        )
+                    else:
+                        file.write(
+                            f"{canvas1.type(obj)} {canvas1.gettags(obj)[0]} "
+                            f"{canvas1.itemconfig(obj)['text'][-1].replace(' ', '_')} "
+                            f"{canvas1.itemcget(obj, 'font')} {canvas1.coords(obj)}\n"
+                        )
+            draw_setka(canvas1)
+            file.write(str(len(MASSIV_CONNECT)) + '\n')
+            for i in MASSIV_CONNECT:
+                file.write(f'{i} {" ".join(MASSIV_CONNECT[i])}\n')
 
 
 def load_objects(path=''):
@@ -412,31 +501,40 @@ def load_objects(path=''):
         file_path = fd.askopenfilename(filetypes=[('Text Files', '*.txt')])
     else:
         file_path = path
-    with open(file_path, 'r') as file:
-        SIZE_GRID = int(file.readline().replace('\n', ''))
-        canvas1.delete('all')
-        draw_setka(canvas1)
-        reset(canvas1)
-        n = int(file.readline())
-        for _ in range(n):
-            line = file.readline().split()
-            obj_type = line[0]
-            obj_tag = line[1]
-            obj_color = line[2]
-            coords = ' '.join(map(str, line[3:]))
-            tag_object = max(int(obj_tag), tag_object)
-            if obj_type == 'line':
-                eval(f'canvas1.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}",width=3)')
-            else:
-                eval(f'canvas1.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
-        tag_object = tag_object + 1
-        n = int(file.readline())
-        for _ in range(n):
-            line = file.readline().split()
-            ind = line[0]
-            value = line[1:]
-            MASSIV_CONNECT[ind] = set(value)
-        copy_canvas(canvas1, canvas2, 'заполнение бд')
+    if file_path:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            SIZE_GRID = int(file.readline().replace('\n', ''))
+            canvas1.delete('all')
+            draw_setka(canvas1)
+            reset(canvas1)
+            n = int(file.readline())
+            for _ in range(n):
+                line = file.readline().split()
+                obj_type = line[0]
+                obj_tag = line[1]
+                obj_color = line[2]
+                coords = ' '.join(map(str, line[3:]))
+                tag_object = max(int(obj_tag), tag_object)
+                if obj_type == 'line':
+                    eval(f'canvas1.create_line({eval(coords)},fill="{obj_color}",tags="{obj_tag}",width=3)')
+                elif obj_type == 'text':
+                    mas = coords.split('[')
+                    eval(
+                        f'canvas1.create_text({"[" + mas[-1]}, font= "{mas[0]}", text="{obj_color.replace("_", " ")}",'
+                        f'tags="{obj_tag}")')
+                else:
+                    eval(f'canvas1.create_{obj_type}({eval(coords)},fill="{obj_color}",tags="{obj_tag}")')
+            tag_object = tag_object + 1
+            n = int(file.readline())
+            for _ in range(n):
+                line = file.readline().split()
+                ind = line[0]
+                value = line[1:]
+                MASSIV_CONNECT[ind] = set(value)
+            if memory_selected_tab == 1:  # для обновления информации на одном из экранов
+                copy_canvas(canvas1, canvas2, 'заполнение бд')
+            elif memory_selected_tab == 2:
+                copy_canvas(canvas1, canvas3, 'поиск товара')
 
 
 def connect_dots(canvas):
@@ -482,7 +580,7 @@ def connect_dots(canvas):
         scale_status = True
 
     progress = ttk.Progressbar(root, length=300, mode='determinate')
-    progress.place(x=width - 200, y=height + 20)
+    progress.place(x=10, y=height + 25)
     progress['maximum'] = 100
     loading_connect_dots(progress)
     progress.destroy()
@@ -578,7 +676,7 @@ def bd_tovara():
     window_bd_tovar.wait_window()
 
 
-def find_tovar():
+def find_tovar(wid):
     def remove_selected_items():
         selected_indices = listbox.curselection()
         for index in selected_indices:
@@ -593,30 +691,45 @@ def find_tovar():
     def draw_path():
         print('нужно сделать отрисовку пути на новой карте')
 
-    window_find_tovar = tk.Toplevel(root)
-    window_find_tovar.title("Поиск товара")
-    window_find_tovar.geometry("500x300")
-    window_find_tovar.grab_set()
+    def vbr_point():
+        print('нужно сделать выбор точки')
 
-    index_label = tk.Label(window_find_tovar, text="Введите код товара")
+    def hide_setting():
+        print('сделать скрытие настроек')
+
+    def load_tovar():
+        print('сделать загрузку из файла')
+
+    canvas = tk.Canvas(page_3, width=wid, height=height)
+    canvas.place(x=0, y=0)
+
+    index_label = tk.Label(page_3, text="Введите код товара")
     index_label.place(x=10, y=10)
 
-    index_entry = tk.Entry(window_find_tovar)
+    index_entry = tk.Entry(page_3)
     index_entry.place(x=10, y=50)
 
-    add_button = tk.Button(window_find_tovar, text="Добавить", command=add_index)
+    add_button = tk.Button(page_3, text="Добавить", command=add_index)
     add_button.place(x=10, y=100)
-    remove_button = tk.Button(window_find_tovar, text="Удалить", command=remove_selected_items)
+    remove_button = tk.Button(page_3, text="Удалить", command=remove_selected_items)
     remove_button.place(x=10, y=130)
+    load_button = tk.Button(page_3, text="Загрузить", command=load_tovar)
+    load_button.place(x=10, y=130)
 
-    find_button = tk.Button(window_find_tovar, text="Построить маршрут", command=draw_path)
+    find_button = tk.Button(page_3, text="Построить маршрут", command=draw_path)
     find_button.place(x=10, y=250)
 
-    listbox = tk.Listbox(window_find_tovar, width=40, height=15)
-    listbox.place(x=200, y=10)
+    start_point_button = tk.Button(page_3, text="Выбрать начальную точку", command=vbr_point)
+    start_point_button.place(x=10, y=300)
 
-    window_find_tovar.mainloop()
-    window_find_tovar.wait_window()
+    finish_point_button = tk.Button(page_3, text="Выбрать финишную точку", command=vbr_point)
+    finish_point_button.place(x=10, y=330)
+
+    hide_button = tk.Button(page_3, text="Скрыть", command=hide_setting)
+    hide_button.place(x=350, y=300)
+
+    listbox = tk.Listbox(page_3, width=40, height=15)
+    listbox.place(x=200, y=10)
 
 
 def telegram_bot():
@@ -677,7 +790,7 @@ def telegram_bot():
 def copy_canvas(source_canvas, target_canvas, type_copy=''):
     if source_canvas != target_canvas:
         target_canvas.delete("all")
-    reset(source_canvas)
+    reset(source_canvas, tag_object_flag=False)
     for item in source_canvas.find_all():
         coords = source_canvas.coords(item)
         item_type = source_canvas.type(item)
@@ -696,8 +809,19 @@ def copy_canvas(source_canvas, target_canvas, type_copy=''):
                 target_canvas.create_line(coords, fill='blue', width=3, tags=tags)
             else:
                 target_canvas.create_line(coords, fill='#D0D0D0', width=1, tags=tags)
-        elif item_type == "text" and type_copy == 'заполнение бд':
-            target_canvas.create_text(coords, text=options["text"][-1], fill=options["fill"][-1], tags=tags)
+        elif item_type == "text":
+            if type_copy == 'заполнение бд' and str(tags) == '()':
+                target_canvas.create_text(coords, text=options["text"][-1], fill=options["fill"][-1], tags=tags)
+            elif str(tags) != '()':
+                font_config = source_canvas.itemcget(item, "font")
+                target_canvas.create_text(
+                    coords,
+                    text=options["text"][-1],
+                    font=font_config,
+                    fill=options["fill"][-1],
+                    tags=tags,
+                    state=options['state'][-1]
+                )
     draw_setka(target_canvas)
 
 
@@ -722,14 +846,17 @@ def on_tab_changed(event):
 
 root = tk.Tk()
 root.title('навигатор')
-root.geometry("1100x650")
+root.geometry("1300x650")
 
 vibor = 'стрелка'  # выбор режима
 x_stena, y_stena = -1, -1
 x_put, y_put = -1, -1
 x_polka, y_polka = -1, -1
 x_lineyka, y_lineyka = -1, -1
+x_text, y_text = -1, -1
 last_x, last_y = -1, -1
+font_settings = r'@Arial\ Unicode\ MS 10 normal roman'
+font_text = 'текст'
 moving_status = False
 scale_status = True
 information_menu_status = False
@@ -737,6 +864,8 @@ tag_object = 0
 start_coordinat_tag = ''
 setka_show = tk.BooleanVar()
 setka_show.set(True)
+text_show = tk.BooleanVar()
+text_show.set(True)
 
 _SIZE_SCALE = 8
 SIZE = 40
@@ -765,13 +894,13 @@ settings_menu = tk.Menu(menu, tearoff=0)
 settings_menu.add_command(label="Подключение БД товара", command=bd_tovara)
 settings_menu.add_command(label="Подключение телеграм бота", command=telegram_bot)
 settings_menu.add_command(label="Соединение всех меток", command=lambda: connect_dots(canvas1))
-settings_menu.add_command(label="Поиск товара", command=find_tovar)
 menu.add_cascade(label="Настройки", menu=settings_menu)
 
 vid_menu = tk.Menu(menu, tearoff=0)
 vid_menu.add_checkbutton(label="Отображение сетки", onvalue=1, offvalue=0,
                          variable=setka_show, command=lambda: draw_setka(eval(f'canvas{memory_selected_tab + 1}')))
-vid_menu.add_command(label="Отображение текста")
+vid_menu.add_checkbutton(label="Отображение текста", onvalue=1, offvalue=0, variable=text_show,
+                         command=lambda: hide_text(eval(f'canvas{memory_selected_tab + 1}')))
 menu.add_cascade(label="Вид", menu=vid_menu)
 
 tool_menu = tk.Menu(menu, tearoff=0)
@@ -780,7 +909,7 @@ tool_menu.add_command(label="Стена", command=lambda: do_vibor('стена')
 tool_menu.add_command(label="Полка", command=lambda: do_vibor('полка'))
 tool_menu.add_command(label="Метка", command=lambda: do_vibor('метка'))
 tool_menu.add_command(label="Путь", command=lambda: do_vibor('путь'))
-tool_menu.add_command(label="Текст")
+tool_menu.add_command(label="Текст", command=lambda: do_vibor('текст'))
 tool_menu.add_command(label="Линейка", command=lambda: do_vibor('линейка'))
 tool_menu.add_separator()
 tool_menu.add_command(label="Перемещение", command=lambda: do_vibor('перемещение'))
@@ -793,7 +922,7 @@ menu.add_cascade(label="О приложении", menu=information_menu)
 
 root.config(menu=menu)
 
-width = 1500
+width = 1800
 height = 600
 notebook = ttk.Notebook(root, width=width, height=height)
 
@@ -809,27 +938,35 @@ button_strelka.place(x=10, y=0)
 
 image_metka = ImageTk.PhotoImage(image=Image.open("image_navigator/метка.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_metka = tk.Button(page_1, image=image_metka, command=lambda: do_vibor('метка'))
-button_metka.place(x=10, y=1*(SIZE+10)+SIZE//2)
+button_metka.place(x=10, y=1 * (SIZE + 10) + SIZE // 2)
 
 image_put = ImageTk.PhotoImage(image=Image.open("image_navigator/путь.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_put = tk.Button(page_1, image=image_put, command=lambda: do_vibor('путь'))
-button_put.place(x=10, y=2*(SIZE+10)+SIZE//2)
+button_put.place(x=10, y=2 * (SIZE + 10) + SIZE // 2)
 
 image_stena = ImageTk.PhotoImage(image=Image.open("image_navigator/стена.jpg").resize((SIZE, SIZE), Image.LANCZOS))
 button_stena = tk.Button(page_1, image=image_stena, command=lambda: do_vibor('стена'))
-button_stena.place(x=10, y=3*(SIZE+10)+SIZE//2)
+button_stena.place(x=10, y=3 * (SIZE + 10) + SIZE // 2)
 
 image_polka = ImageTk.PhotoImage(image=Image.open("image_navigator/полка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
 button_polka = tk.Button(page_1, image=image_polka, command=lambda: do_vibor('полка'))
-button_polka.place(x=10, y=4*(SIZE+10)+SIZE//2)
+button_polka.place(x=10, y=4 * (SIZE + 10) + SIZE // 2)
 
 image_move = ImageTk.PhotoImage(image=Image.open("image_navigator/перемещение.png").resize((SIZE, SIZE), Image.LANCZOS))
 button_move = tk.Button(page_1, image=image_move, command=lambda: do_vibor('перемещение'))
-button_move.place(x=10, y=5*(SIZE+10)+SIZE//2)
+button_move.place(x=10, y=5 * (SIZE + 10) + SIZE // 2)
 
 image_delete = ImageTk.PhotoImage(image=Image.open("image_navigator/удалить.jpeg").resize((SIZE, SIZE), Image.LANCZOS))
 button_delete = tk.Button(page_1, image=image_delete, command=lambda: do_vibor('удалить'))
-button_delete.place(x=10, y=6*(SIZE+10)+SIZE//2)
+button_delete.place(x=10, y=6 * (SIZE + 10) + SIZE // 2)
+
+image_lineyka = ImageTk.PhotoImage(image=Image.open("image_navigator/линейка.jpg").resize((SIZE, SIZE), Image.LANCZOS))
+button_lineyka = tk.Button(page_1, image=image_lineyka, command=lambda: do_vibor('линейка'))
+button_lineyka.place(x=10, y=7 * (SIZE + 10) + SIZE // 2)
+
+image_text = ImageTk.PhotoImage(image=Image.open("image_navigator/текст.png").resize((SIZE, SIZE), Image.LANCZOS))
+button_text = tk.Button(page_1, image=image_text, command=lambda: do_vibor('текст'))
+button_text.place(x=10, y=8 * (SIZE + 10) + SIZE // 2)
 
 page_2 = tk.Frame(notebook)
 canvas2 = tk.Canvas(page_2, bg="white", width=width, height=height)
@@ -837,20 +974,27 @@ canvas2.pack(fill="both", expand=True)
 notebook.add(page_2, text="Заполнение БД")
 
 page_3 = tk.Frame(notebook)
-
+width_settings = 500
 canvas3 = tk.Canvas(page_3, bg="white", width=width, height=height)
-canvas3.pack(fill="both", expand=True)
+canvas3.pack(fill="both", expand=True, padx=width_settings)
 notebook.add(page_3, text="Поиск товара")
+find_tovar(width_settings)
 
 load_objects(CONFIGURATION['file_open'])
 draw_setka(canvas1)
 
 canvas1.bind('<Button-1>', lambda event: on_press_left(event, canvas1))
+canvas1.bind('<Button-4>', lambda event: scale_all(event, canvas1, False))
+canvas1.bind('<Button-5>', lambda event: scale_all(event, canvas1, True))
 canvas1.bind("<MouseWheel>", lambda event: scale_all(event, canvas1))
 canvas1.bind('<Button-3>', lambda event: on_press_right(event, canvas1))
 
+canvas2.bind('<Button-4>', lambda event: scale_all(event, canvas2, False))
+canvas2.bind('<Button-5>', lambda event: scale_all(event, canvas2, True))
 canvas2.bind("<MouseWheel>", lambda event: scale_all(event, canvas2))
 
+canvas3.bind('<Button-4>', lambda event: scale_all(event, canvas3, False))
+canvas3.bind('<Button-5>', lambda event: scale_all(event, canvas3, True))
 canvas3.bind("<MouseWheel>", lambda event: scale_all(event, canvas3))
 
 notebook.bind("<<NotebookTabChanged>>", lambda event: on_tab_changed(event))
