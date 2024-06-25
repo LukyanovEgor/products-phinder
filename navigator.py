@@ -291,6 +291,7 @@ def motion(event, canvas):
                     canvas.move(obj, (event.x - last_x) * SIZE_GRID // 2, (event.y - last_y) * SIZE_GRID // 2)
             last_x = event.x
             last_y = event.y
+            canvas.scale('all', 0, 0, 1, 1)  # чтоб буквы не оставляли след
         else:
             return
     elif vibor == 'линейка':
@@ -445,7 +446,7 @@ def on_press_right(event, canvas):
         m.grab_release()
 
 
-def scale_all(event, canvas, nap=None):  # сделать масштабирование текста
+def scale_all(event, canvas, nap=None):  # сделать масштабирование текста меньше 32
     global SIZE_GRID
     x_scale = 2 if event.delta > 0 or nap else 0.5
     y_scale = 2 if event.delta > 0 or nap else 0.5
@@ -463,6 +464,19 @@ def scale_all(event, canvas, nap=None):  # сделать масштабиров
         canvas.scale('all', 0, 0, x_scale, y_scale)
         canvas.move('all', (event.x // SIZE_GRID) * SIZE_GRID, (event.y // SIZE_GRID) * SIZE_GRID)
         draw_setka(canvas)
+        for obj in canvas.find_all():
+            if canvas.type(obj) == 'text':
+                massiv = canvas.itemconfigure(obj, 'font')[-1].split()
+                for i in range(len(massiv) - 1, -1, -1):
+                    try:
+                        font_size = int(massiv[i]) * x_scale
+                        print(massiv)
+                        canvas.itemconfigure(obj, font=canvas.itemconfigure(obj, 'font')[-1].replace(
+                            massiv[i], str(round(font_size))))
+                        break
+                    except Exception as ex:
+                        pass
+
         if x_lineyka != -1 and y_lineyka != -1:
             draw_lineyka(canvas, event.x, event.y)
 
@@ -695,7 +709,16 @@ def find_tovar(wid):
         print('нужно сделать выбор точки')
 
     def hide_setting():
-        print('сделать скрытие настроек')
+        if hide_button['text'] == '<':
+            canvas3.pack_configure(padx=0)
+            canvas.place(x=-wid, y=0)
+            hide_button['text'] = ">"
+            hide_button.place(x=0 + 3, y=10)
+        else:
+            canvas3.pack_configure(padx=wid)
+            canvas.place(x=0, y=0)
+            hide_button['text'] = "<"
+            hide_button.place(x=wid + 3, y=10)
 
     def load_tovar():
         print('сделать загрузку из файла')
@@ -703,32 +726,32 @@ def find_tovar(wid):
     canvas = tk.Canvas(page_3, width=wid, height=height)
     canvas.place(x=0, y=0)
 
-    index_label = tk.Label(page_3, text="Введите код товара")
+    index_label = tk.Label(canvas, text="Введите код товара")
     index_label.place(x=10, y=10)
 
-    index_entry = tk.Entry(page_3)
+    index_entry = tk.Entry(canvas)
     index_entry.place(x=10, y=50)
 
-    add_button = tk.Button(page_3, text="Добавить", command=add_index)
+    add_button = tk.Button(canvas, text="Добавить", command=add_index)
     add_button.place(x=10, y=100)
-    remove_button = tk.Button(page_3, text="Удалить", command=remove_selected_items)
+    remove_button = tk.Button(canvas, text="Удалить", command=remove_selected_items)
     remove_button.place(x=10, y=130)
-    load_button = tk.Button(page_3, text="Загрузить", command=load_tovar)
+    load_button = tk.Button(canvas, text="Загрузить", command=load_tovar)
     load_button.place(x=10, y=130)
 
-    find_button = tk.Button(page_3, text="Построить маршрут", command=draw_path)
+    find_button = tk.Button(canvas, text="Построить маршрут", command=draw_path)
     find_button.place(x=10, y=250)
 
-    start_point_button = tk.Button(page_3, text="Выбрать начальную точку", command=vbr_point)
+    start_point_button = tk.Button(canvas, text="Выбрать начальную точку", command=vbr_point)
     start_point_button.place(x=10, y=300)
 
-    finish_point_button = tk.Button(page_3, text="Выбрать финишную точку", command=vbr_point)
+    finish_point_button = tk.Button(canvas, text="Выбрать финишную точку", command=vbr_point)
     finish_point_button.place(x=10, y=330)
 
-    hide_button = tk.Button(page_3, text="Скрыть", command=hide_setting)
-    hide_button.place(x=350, y=300)
+    hide_button = tk.Button(page_3, text="<", height=5, width=2, command=hide_setting)
+    hide_button.place(x=wid + 3, y=10)
 
-    listbox = tk.Listbox(page_3, width=40, height=15)
+    listbox = tk.Listbox(canvas, width=40, height=15)
     listbox.place(x=200, y=10)
 
 
@@ -803,7 +826,7 @@ def copy_canvas(source_canvas, target_canvas, type_copy=''):
             if type_copy == 'заполнение бд':
                 x1, y1, x2, y2 = coords
                 target_canvas.create_text((x1 + x2) / 2, y1 + SIZE_GRID // 2, text=tags, fill='black',
-                                          font='Verdana 12 bold')
+                                          font='Verdana 32 bold')
         elif item_type == "line" and tags[0] != 'setka':
             if type_copy == 'редактирование':
                 target_canvas.create_line(coords, fill='blue', width=3, tags=tags)
